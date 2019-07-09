@@ -1,0 +1,165 @@
+<div class="ui-g">
+  <div class="ui-g-3" *ngIf="showSavedSearches && !savedSearchesHidden">
+    <div class="user-list">
+      <p-panel>
+        <p-header>
+          Saved Searches <a href="javascript:" class="white-text pull-right underline" (click)="savedSearchesHidden=true">Hide</a>
+        </p-header>
+        <div class="bold w-100 text-align-center" *ngIf="savedSearches && savedSearches.length===0">
+          No Saved Search Found
+        </div>
+        <table class="ecm-table w-100">
+    <tbody>
+    <tr *ngFor="let search of savedSearches;let i=index;" class="item"
+        [ngClass]="{'even':i%2===0 && search!==selectedSearch,'clickable':isRowSelectable}" >
+      <td role="button" (click)="selectSearch(search)" [ngClass]="{'ui-state-highlight':search===selectedSearch}">
+        <a href="javascript:" [ngClass]="{'ui-state-highlight':search===selectedSearch}">{{search.name}}</a></td>
+      <td align="right" class="action-btn-group" [ngClass]="{'ui-state-highlight':search===selectedSearch}">
+            <span class="action-btn-group-sm">
+              <button pButton type="button" icon="ui-icon-clear" (click)="removeSearch(search)"  class="remove-btn v-m pull-right"></button>
+            </span>
+          </td>
+    </tr>
+    </tbody>
+      </table>
+      </p-panel>
+
+
+</div>
+  </div>
+  <div class="ui-g-1" *ngIf="showSavedSearches && savedSearchesHidden">
+    <div class="bold w-100 text-align-center" >
+          <a href="javascript:" (click)="savedSearchesHidden=false">Show Searches</a>
+        </div>
+  </div>
+  <div  [ngClass]="{'ui-g-11':showSavedSearches && savedSearchesHidden,'ui-g-9':showSavedSearches && !savedSearchesHidden,'ui-g-12':!showSavedSearches}">
+    <form (ngSubmit)="searchDocument('isbutton')" #searchForm="ngForm" class="form-center tabled-form">
+      <table>
+        <tbody>
+        <tr>
+
+          <td>
+            <label>Search Text:</label>
+          </td>
+          <td class="input-md">
+            <p-dropdown [options]="data.matchTypes" [(ngModel)]="data.model.contentSearch.oper" [autoWidth]="false"
+                        name="oper"></p-dropdown>
+          </td>
+          <td class="input-md">
+                    <span class="md-inputfield">
+                        <input type="text" [style]="{'width':'480px'}" pInputText [(ngModel)]="data.model.contentSearch.mvalues[0]"  name="query">
+                    </span>
+          </td>
+
+        </tr>
+        <ng-container *ngIf="!isSimpleSearch">
+          <tr>
+            <td>
+              <label>Document Class:</label>
+            </td>
+            <td class="input-md">
+              <p-dropdown [options]="data.documentClasses" [(ngModel)]="data.model.selectedDocumentClass"
+                          [autoWidth]="false"
+                          name="matchType" (onChange)="switchDocumentClass()"></p-dropdown>
+            </td>
+          </tr>
+          <ng-container *ngIf="data.searchTemplate && data.searchTemplate.props">
+            <tr *ngFor="let dynamicProp of dynamicProps;let i=index">
+               <td><p-dropdown [options]="dynamicProp.options" [(ngModel)]="dynamicProp.selectedOption" [autoWidth]="false"
+               name="{{i}}" (onChange)="propChanged(i)"></p-dropdown>
+                 </td>
+                <ng-container *ngIf="dynamicProp.selectedOption && dynamicProp.selectedOption.dtype.toLowerCase()=='date'" class="form-group">
+                  <td class="input-md">
+                    <p-calendar placeholder="From" dateFormat="dd-mm-yy"
+                                [showIcon]="true" [(ngModel)]="dynamicProp.mvalues[0]"
+                                [name]="dynamicProp.selectedOption.symName" (onSelect)="fromDateChanged(dynamicProp)"
+                                [monthNavigator]="true" [yearNavigator]="true" yearRange="1900:2030"></p-calendar>
+                  </td>
+                  <td class="input-md">
+                    <p-calendar placeholder="To" dateFormat="dd-mm-yy" [disabled]="!dynamicProp.mvalues[0]"
+                                [monthNavigator]="true" [yearNavigator]="true" yearRange="1900:2030" [showIcon]="true"
+                                [(ngModel)]="dynamicProp.mvalues[1]" [minDate]="dynamicProp.minDate"
+                                [name]="dynamicProp.selectedOption.symName+'2'"></p-calendar>
+                  </td>
+
+                </ng-container>
+                <ng-container *ngIf="dynamicProp.selectedOption && (dynamicProp.selectedOption.dtype.toLowerCase()=='string' ||
+                 dynamicProp.selectedOption.dtype.toLowerCase()=='long') && !dynamicProp.selectedOption.lookups" class="form-group">
+                  <td class="input-md">
+                          <span class="md-inputfield">
+                              <input type="text" pInputText [(ngModel)]="dynamicProp.mvalues[0]" name="{{'ab'+i}}">
+                          </span>
+                  </td>
+
+                </ng-container>
+                <ng-container *ngIf="dynamicProp.selectedOption && dynamicProp.selectedOption.lookups && dynamicProp.selectedOption.lookups.length>0"
+                              class="form-group">
+                  <td class="input-md">
+                    <p-dropdown [options]="dynamicProp.selectedOption.lookups" placeholder="Select"
+                                [(ngModel)]="dynamicProp.mvalues[0]" [autoWidth]="false"
+                                name="{{dynamicProp.selectedOption.symName}}" [filter]="true"
+                                filterBy="label,value.name"></p-dropdown>
+                  </td>
+
+                </ng-container>
+              <td>
+                <button pButton type="button"  icon="ui-icon-clear" class="remove-btn" (click)="removeProp(i)"></button>
+              </td>
+             </tr>
+<tr>
+              <td>
+                <button pButton type="button"
+                    label="Add More" class="pull-left" (click)="addDynamicProp()"
+                [disabled]="(dynamicProps.length>0 && dynamicProps[0].options && dynamicProps[0].options.length===1) "></button>
+              </td>
+            </tr>
+
+          </ng-container>
+        </ng-container>
+
+        <tr>
+          <td colspan="9" align="right">
+            <button [disabled]="(isSimpleSearch && !(data.model.contentSearch.mvalues[0] && data.model.contentSearch.mvalues[0].length>2))" pButton
+                    label="Search" class="pull-right" style="margin-bottom:10px;width:auto"></button>
+            <button *ngIf="showSavedSearches" pButton type="button"
+                    [label]="selectedSearch?'Update':'Save'" class="pull-right m-r-md" style="margin-bottom:10px;width:auto" (click)="initSaveSearch()"></button>
+            <button *ngIf="showSavedSearches && selectedSearch" pButton type="button"
+                    label="Reset To Default" class="pull-right m-r-md" style="margin-bottom:10px;width:auto" (click)="resetToDefault()"></button>
+            <button  pButton  (click)="clearSearch();" type="button"
+                    label="Clear" class="pull-right m-r-md" style="margin-bottom:10px;width:auto"></button>
+<!--            <button  pButton  (click)="continueSearch();" type="button"
+                    label="Continue Search" class="pull-right m-r-md" style="margin-bottom:10px;width:auto"></button>-->
+
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </form>
+  </div>
+</div>
+
+<p-dialog styleClass="p-0" appendTo="body" modal="modal" showEffect="fade" [(visible)]="showSaveSearchModal"
+             [width]="650" (onHide)="onSaveSearchModalHide()">
+      <p-header>
+       Save Search
+      </p-header>
+      <form #saveSearchForm="ngForm" novalidate>
+        <div class="ui-g form-group">
+          <div class="ui-g-12 ui-md-4">
+            <label for="name">Name:<b style="color:red">*</b></label>
+          </div>
+          <div class="ui-g-12 ui-md-7">
+            <input pInputText type="text" id="name" name="name" [(ngModel)]="saveSearchObj.name"
+                   maxlength="20" [required]="true" [ngClass]="{'ng-invalid ng-dirty':searchAlreadyExists}">
+            <div *ngIf="searchAlreadyExists" class="error">Search With This Name Already Exists</div>
+          </div>
+        </div>
+      </form>
+  <p-footer>
+  <button pButton class="pull-right" type="button" label="Save"
+            [disabled]="!saveSearchForm.form.valid" (click)="saveSearch()"></button>
+    <button pButton class="pull-right" type="button" label="Cancel"
+             (click)="showSaveSearchModal=false"></button>
+    </p-footer>
+    </p-dialog>
+

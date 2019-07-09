@@ -1,0 +1,216 @@
+<div class="ui-g-12 ui-md-12 p-t-0 p-r-0 p-l-0">
+  <button pButton type="button" label="Export" (click)="exportToExcel();"
+          class="pull-right" [disabled]="!ecmExcludeUserList"></button>
+</div>
+<div class="ui-g-12  p-0 h-100">
+  <div class="ui-widget-header" style="padding:2px 10px;border-bottom: 0 none">
+    <!-- global filter -->
+    <div class="ui-g">
+      <div class="ui-g-12 p-0">
+        <table>
+          <tr>
+            <td><i class="fa fa-search v-m m-r-md"></i></td>
+            <td>
+              <input #gb type="text" pInputText size="50"
+                     placeholder="Filter Text" style="color: #ffffff"
+                     class="v-m p-0">
+            </td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  </div>
+  <div class="ui-g-12 p-0 max-h-600">
+
+    <p-dataTable [resizableColumns]="true" [reorderableColumns]="true" [value]="ecmExcludeUserList" [rows]="itemsPerPage"
+                 [paginator]="true" [responsive]="true" [globalFilter]="gb">
+
+      <!--<p-column  [sortable]="true" *ngFor="let col of colHeaders" [field]="col.field"-->
+      <!--[header]="col.header"></p-column>-->
+      <p-column [sortable]="true" field="id" header="Id"></p-column>
+      <p-column [sortable]="true" field="userName" header="User Name"></p-column>
+      <p-column [sortable]="true" field="fulName" header="Full Name"></p-column>
+      <p-column [sortable]="true" field="KocId" header="Koc Id"></p-column>
+      <p-column [sortable]="true" field="orgCode" header="Org Code"></p-column>
+      <p-column [sortable]="true" field="mail" header="Mail"></p-column>
+      <p-column styleClass="col-button">
+        <ng-template pTemplate="header">
+          <button pButton type="button" icon="ui-icon-autorenew" title="Refresh" (click)="refresh()"
+                  class="remove-btn"></button>
+        </ng-template>
+        <ng-template let-rowdat="rowData" let-i="rowIndex" pTemplate="body">
+          <button pButton type="button" (click)="removeExcludeUser(rowdat,i)" icon="ui-icon-remove"
+                  title="Remove"
+                  class="remove-btn v-m"
+          ></button>
+
+        </ng-template>
+      </p-column>
+
+    </p-dataTable>
+    <div class="ui-g-12">
+      <div class="ui-g-6 ui-md-6 border-right">
+        <div class="ui-g form-group">
+          <div class="ui-g-12 ui-md-4">
+            <label class="text-bold">Add operators to exclude</label>
+          </div>
+        </div>
+        <form #searchUserForm="ngForm" (submit)="getUsersForAdmin()" class="scrollable">
+          <!--              <table>
+                             <thead>
+                               <tr>
+                                 <td>Select Criteria:</td>
+                                 <td></td>
+                                 <td>Search Text:</td>
+                               </tr>
+                             </thead>
+                              <tbody>
+                               <tr *ngFor="let dynamicCrite of dynamicCriteria;let i=index">
+                                   <td width="40%">
+                                      <p-dropdown id="template" [options]="dynamicCrite.options" [(ngModel)]="dynamicCrite.selectedOption" name="{{i}}"
+                                                  (onChange)="criteriaChanged(i)" [autoWidth]="false" [ngModelOptions]="{standalone: true}">
+                                      </p-dropdown>
+                                   </td>
+                                   <td width="10%"></td>
+                                   <td width="60%">
+                                     <ng-container *ngIf="dynamicCrite.selectedOption!=='empNo' && dynamicCrite.selectedOption!=='phone'">
+                                       <input type="text" [ngModelOptions]="{standalone: true}" [(ngModel)]="dynamicCrite.searchText" required pInputText>
+                                     </ng-container>
+                                     <ng-container *ngIf="dynamicCrite.selectedOption==='empNo' || dynamicCrite.selectedOption==='phone'">
+                                       <div class="ui-fluid">
+                                        <p-spinner [ngModelOptions]="{standalone: true}" [(ngModel)]="dynamicCrite.searchText" [formatInput]="false" [min]="0" required></p-spinner>
+                                       </div>
+                                     </ng-container>
+                                   </td>
+                                   <td width="10%">
+                                      <button pButton type="button" icon="ui-icon-clear" class="remove-btn" (click)="removeCriteria(i)" [disabled]="dynamicCriteria.length===1"></button>
+                                   </td>
+                                </tr>
+                              </tbody>
+                           </table>
+                          <div class="ui-g form-group">
+                            <div class="ui-g-12 ui-md-4 p-l-0">
+                              <button pButton type="button" label="Add More" (click)="addNewCriterion()" class="pull-left"
+                                          [disabled]="(dynamicCriteria.length>0 && dynamicCriteria[0].options && dynamicCriteria[0].options.length===1)">
+                              </button>
+                            </div>
+                            <div class="ui-g-12 ui-md-8 p-l-0">
+                              <button pButton type="submit" label="Search" class="pull-right m-l-md"></button>
+                              &lt;!&ndash;<button pButton type="button" (click)="searchUserForm.reset();" label="Clear" class="pull-right"></button>&ndash;&gt;
+                            </div>
+                          </div>-->
+
+          <!--all search criteria-->
+          <div class="ui-g form-group">
+            <div class="ui-g-12 ui-md-3">
+              <label>Select Criteria</label>
+            </div>
+            <div class="ui-g-12 ui-md-6">
+              <label>Search Text</label>
+            </div>
+          </div>
+          <div class="ui-g form-group">
+            <div class="ui-g-12 ui-md-3">
+              <label>Name:</label>
+            </div>
+            <div class="ui-g-12 ui-md-6">
+                    <span class="md-inputfield">
+                      <input type="text" pInputText name="userName" [(ngModel)]="searchQueary.userName">
+                    </span>
+            </div>
+          </div>
+          <div class="ui-g form-group">
+            <div class="ui-g-12 ui-md-3">
+              <label>Email:</label>
+            </div>
+            <div class="ui-g-12 ui-md-6">
+                    <span class="md-inputfield">
+                      <input type="text" pInputText name="mail" [(ngModel)]="searchQueary.mail">
+                    </span>
+            </div>
+          </div>
+          <div class="ui-g form-group">
+            <div class="ui-g-12 ui-md-3">
+              <label>Designation:</label>
+            </div>
+            <div class="ui-g-12 ui-md-6">
+                    <span class="md-inputfield">
+                      <input type="text" pInputText name="title" [(ngModel)]="searchQueary.title">
+                    </span>
+            </div>
+          </div>
+          <div class="ui-g form-group">
+            <div class="ui-g-12 ui-md-3">
+              <label>Phone:</label>
+            </div>
+            <div class="ui-g-12 ui-md-6">
+                    <span class="md-inputfield">
+                      <div class="ui-fluid">
+                        <p-spinner [(ngModel)]="searchQueary.phone" name="phone" [formatInput]="false" [min]="0"
+                                   class="no-spinners"></p-spinner>
+                      </div>
+                    </span>
+            </div>
+          </div>
+          <div class="ui-g form-group">
+            <div class="ui-g-12 ui-md-3">
+              <label>Org Code:</label>
+            </div>
+            <div class="ui-g-12 ui-md-6">
+                    <span class="md-inputfield">
+                      <input type="text" pInputText name="orgCode" [(ngModel)]="searchQueary.orgCode">
+                    </span>
+            </div>
+          </div>
+          <div class="ui-g form-group">
+            <div class="ui-g-12 ui-md-3">
+              <label>KOC No:</label>
+            </div>
+            <div class="ui-g-12 ui-md-6">
+                    <span class="md-inputfield">
+                      <div class="ui-fluid">
+                        <p-spinner [(ngModel)]="searchQueary.empNo" name="empNo" [formatInput]="false" [min]="0"
+                                   class="no-spinners"></p-spinner>
+                      </div>
+                    </span>
+            </div>
+          </div>
+          <div class="ui-g form-group">
+            <div class="ui-g-12 ui-md-9 p-l-0">
+              <button pButton type="submit" label="Search" class="pull-right m-l-md"></button>
+              <button pButton type="button" (click)="searchUserForm.reset();clearResult();" label="Clear"
+                      class="pull-right"></button>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="ui-g-6 ui-md-6 max-h-350">
+        <app-user-list [showAddBtn]="true" [showCcBtn]="false" [showToBtn]="false"
+                       [showTooltip]="false" [items]="searchResult" [field]="'name'"
+                       (addToList)="enableExclude($event)"
+        ></app-user-list>
+      </div>
+    </div>
+  </div>
+</div>
+<p-confirmDialog ></p-confirmDialog>
+
+<!--<p-dialog modal="modal" showEffect="fade" [(visible)]="justificationDialog" (onHide)="canceleJustificationDialog()">-->
+  <!--<p-header>-->
+    <!--<span>Justification</span>-->
+  <!--</p-header>-->
+  <!--<form #addUser="ngForm">-->
+    <!--<div class="ui-g-12 ui-md-12">-->
+      <!--<textarea class="text-area-resize-none bordered" [rows]="3" maxlength="300" [cols]="30" pInputTextarea-->
+                <!--[autoResize]="false"-->
+                <!--[(ngModel)]="adminUser.justification" name="justification" required></textarea>-->
+      <!--<span *ngIf="!adminUser.justification">300 Remaining</span>-->
+      <!--<span *ngIf="adminUser.justification">{{300-adminUser.justification.length}} Remaining</span>-->
+    <!--</div>-->
+  <!--</form>-->
+  <!--<p-footer>-->
+    <!--<button type="button" class="pull-right" pButton [disabled]="!addUser.form.valid" (click)="addAdminUser()"-->
+            <!--label="Ok"></button>-->
+    <!--<button type="button" class="pull-right" pButton (click)="canceleJustificationDialog()" label="Cancel"></button>-->
+  <!--</p-footer>-->
+<!--</p-dialog>-->

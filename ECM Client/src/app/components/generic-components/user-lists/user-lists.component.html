@@ -1,0 +1,26 @@
+<div class="user-list">
+  <table class="ecm-table w-100">
+    <tbody *ngIf="listData.userList">
+    <ng-container *ngFor="let list of listData.userList;let i=index;">
+      <tr class="clickable" [ngClass]="{'even':i%2===0}" (click)="mOnSelect(list,'list')">
+        <td>
+          <i class="fa ui-icon-star-border v-m"
+             [ngClass]="{'hide':list.name!=='Favourites','show':list.name==='Favourites'}">
+          </i>
+          <i class="fa ui-icon-view-list v-m"
+             [ngClass]="{'hide':list.name==='Favourites','show':list.name!=='Favourites'}">
+          </i>
+        </td>
+        <td><span class="v-m">{{list.name}}</span></td>
+        <td><i class="fa ui-icon-keyboard-arrow-down"
+               [ngClass]="{'show':!listData.selectedUserList || listData.selectedUserList!==list,
+               'hide':listData.selectedUserList && listData.selectedUserList===list}"></i>
+          <i class="fa ui-icon-chevron-right"
+             [ngClass]="{'show':listData.selectedUserList && listData.selectedUserList===list,
+               'hide':!listData.selectedUserList || listData.selectedUserList!==list}"></i></td>
+      </tr>
+    </ng-container>
+    </tbody>
+  </table>
+
+</div>

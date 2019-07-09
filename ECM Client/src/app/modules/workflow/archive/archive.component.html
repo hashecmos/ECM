@@ -1,0 +1,257 @@
+<mat-tab-group (selectChange)="tabChange($event.tab.textLabel,selectedTabIndex)" [(selectedIndex)]="selectedTabIndex">
+  <mat-tab label="{{user.fulName}} Inbox" *ngIf="user">
+    <ng-template mat-tab-label>
+      {{user.fulName }} Inbox
+      <span class="badge m-l-sm ui-state-highlight" *ngIf="userInboxTabsTotalCount">{{userInboxTabsTotalCount}}</span>
+    </ng-template>
+    <div class="ui-g-12 ui-md-1  p-b-0 p-l-0 width-auto">
+      <action-button (selectedAction)="getSelectedAction($event)" (toggleFilter)="getFiltertoggle($event)"
+                     [activePage]="'archive'" [actions]="actions" [disableSelect]="disableAction"
+                     [totalTableRecords]="archiveWorkitems.totalCount"
+                     [selectedItemCount]="selectedCount" [hasFilterRes]="advanceFilterShown"
+                     (clearFilter)="closeFilters($event)" [userId]="user.EmpNo" [activeTab]="'inbox'"></action-button>
+    </div>
+    <div class="ui-g-12 ui-md-2 p-b-0">
+      <div class="ui-g-12 colMultiselect p-b-0 m-b-sm">
+        <mat-select placeholder="Columns" [(ngModel)]="selectedColumns"
+                    (selectionChange)="columnSelectionChanged($event)" multiple>
+          <mat-option *ngFor="let column of columns" [value]="column.value">{{column.label}}</mat-option>
+        </mat-select>
+      </div>
+    </div>
+    <div class="ui-g-12 ui-md-3 p-r-0 p-l-0 pull-right">
+      <p-menubar [model]="archiveTieredItems" styleClass="pull-right export-menuItem"></p-menubar>
+    </div>
+    <div class="ui-g-12 ui-md-12 hide p-0 filter">
+     <app-filter (filterData)="getArchives($event)" [filterQuery]="request" [activePage]="'inbox'"
+                  [filterSenderoptions]="sender" [filterCount]="filterCount" [forOptions]="forOptions"
+                  [filteredData]="archiveWorkitems.workitems" (clearFilter)="clearFilterResults($event)"></app-filter>
+    </div>
+    <div class="min-height-400" [ngClass]="{'max-h-265':advanceFilterShown}">
+    <data-table (sendData)="getData($event)" [totalRecords]="totalRecords" [emptyMessage]="emptyMessage"
+                [activePage]="'inbox'" [showInfoIcon]="false" (sendSortPagination)="assignSortNotPaginationInfo($event)"
+                [showDownloadIcon]="false" [showAddCartIcon]="false" [tableData]="archiveWorkitems.workitems"
+                [colHeaders]="colHeaders"
+                (refreshScreen)="refreshTable($event)" [itemsPerPage]="itemsPerPage" [rowExpandable]="true"
+                [lazy]="lazy"></data-table>
+    </div>
+  </mat-tab>
+  <mat-tab label="{{user.fulName}} Sent" *ngIf="user">
+    <ng-template mat-tab-label>
+      {{user.fulName }} Sent
+      <span class="badge m-l-sm ui-state-highlight" *ngIf="userSentTabsTotalCount">{{userSentTabsTotalCount}}</span>
+    </ng-template>
+    <div class="ui-g-12 ui-md-1  p-b-0 p-l-0 width-auto">
+      <action-button (selectedAction)="getSelectedAction($event)" (toggleFilter)="getFiltertoggle($event)"
+                     [activePage]="'archive'" [actions]="actions" [disableSelect]="disableAction"
+                     [totalTableRecords]="archiveWorkitems.totalCount"
+                     [selectedItemCount]="selectedCount" [hasFilterRes]="advanceFilterShown"
+                     (clearFilter)="closeFilters($event)" [userId]="user.EmpNo" [activeTab]="'sent'"></action-button>
+    </div>
+    <div class="ui-g-12 ui-md-2 p-b-0">
+      <div class="ui-g-12 colMultiselect p-b-0 m-b-sm">
+        <mat-select placeholder="Columns" [(ngModel)]="selectedSentColumns"
+                    (selectionChange)="columnSelectionChanged($event)" multiple>
+          <mat-option *ngFor="let column of sentColumns" [value]="column.value">{{column.label}}</mat-option>
+        </mat-select>
+      </div>
+    </div>
+    <div class="ui-g-12 ui-md-3 p-r-0 p-l-0 pull-right">
+      <p-menubar [model]="archiveTieredItems" styleClass="pull-right export-menuItem"></p-menubar>
+    </div>
+    <div class="ui-g-12 ui-md-12 hide p-0 filter">
+      <app-filter (filterData)="getArchives($event)" [filterQuery]="request" [activePage]="'sent'"
+                  [filterSenderoptions]="recipients" [filterCount]="filterCount" [forOptions]="forOptions"
+                  [filteredData]="archiveWorkitems.workitems" (clearFilter)="clearFilterResults($event)"></app-filter>
+    </div>
+    <div class="min-height-400" [ngClass]="{'max-h-265':advanceFilterShown}">
+    <data-table (sendData)="getData($event)" [totalRecords]="archiveWorkitems.totalCount" [emptyMessage]="emptyMessage"
+                [activePage]="'sent'" [showInfoIcon]="false" (sendSortPagination)="assignSortNotPaginationInfo($event)"
+                [showDownloadIcon]="false" [showAddCartIcon]="false" [tableData]="archiveWorkitems.workitems"
+                [colHeaders]="sentColHeaders"
+                (refreshScreen)="refreshTable($event)" [itemsPerPage]="itemsPerPage" [rowExpandable]="true"
+                [lazy]="lazy"></data-table>
+    </div>
+
+  </mat-tab>
+  <ng-container *ngIf="user && user.roles">
+    <ng-container *ngIf="user.roles.length > 0">
+      <ng-container *ngFor="let role of user.roles">
+        <mat-tab label="{{role.name}} Inbox">
+          <ng-template mat-tab-label>
+            {{role.name}} Inbox
+            <span class="badge m-l-sm ui-state-highlight" *ngIf="roleInboxTabsTotalCount[role.id]">{{roleInboxTabsTotalCount[role.id]}}</span>
+          </ng-template>
+          <div class="ui-g-12 ui-md-1  p-b-0 p-l-0 width-auto">
+            <action-button (selectedAction)="getSelectedAction($event)"
+                           (toggleFilter)="getFiltertoggle($event)" [activePage]="'archive'" [actions]="actions"
+                           [disableSelect]="disableAction" [totalTableRecords]="archiveWorkitems.totalCount"
+                           [selectedItemCount]="selectedCount" [hasFilterRes]="advanceFilterShown"
+                           (clearFilter)="closeFilters($event)" [userId]="role.id"
+                           [activeTab]="'inbox'"></action-button>
+          </div>
+          <div class="ui-g-12 ui-md-2 p-b-0">
+            <div class="ui-g-12 colMultiselect p-b-0 m-b-sm">
+              <mat-select placeholder="Columns" [(ngModel)]="selectedColumns"
+                          (selectionChange)="columnSelectionChanged($event)" multiple>
+                <mat-option *ngFor="let column of columns" [value]="column.value">{{column.label}}</mat-option>
+              </mat-select>
+            </div>
+          </div>
+          <div class="ui-g-12 ui-md-3 p-r-0 p-l-0 pull-right">
+            <p-menubar [model]="archiveTieredItems" styleClass="pull-right export-menuItem"></p-menubar>
+          </div>
+          <div class="ui-g-12 ui-md-12 hide p-0 filter">
+            <app-filter (filterData)="getArchives($event)" [filterQuery]="request" [activePage]="'inbox'"
+                  [filterSenderoptions]="sender" [filterCount]="filterCount" [forOptions]="forOptions"
+                  [filteredData]="archiveWorkitems.workitems" (clearFilter)="clearFilterResults($event)"></app-filter>
+          </div>
+          <div class="min-height-400" [ngClass]="{'max-h-265':advanceFilterShown}">
+          <data-table (sendData)="getData($event)" [totalRecords]="totalRecords" [emptyMessage]="emptyMessage"
+                      [activePage]="'inbox'" [showInfoIcon]="false"
+                      (sendSortPagination)="assignSortNotPaginationInfo($event)"
+                      [showDownloadIcon]="false" [showAddCartIcon]="false" [tableData]="archiveWorkitems.workitems"
+                      [colHeaders]="colHeaders"
+                      (refreshScreen)="refreshTable($event)" [itemsPerPage]="itemsPerPage" [rowExpandable]="true"
+                      [lazy]="lazy"></data-table>
+          </div>
+
+        </mat-tab>
+        <mat-tab label="{{role.name}} Sent">
+          <ng-template mat-tab-label>
+            {{role.name}} Sent
+            <span class="badge m-l-sm ui-state-highlight" *ngIf="roleSentTabsTotalCount[role.id]">{{roleSentTabsTotalCount[role.id]}}</span>
+          </ng-template>
+          <div class="ui-g-12 ui-md-1  p-b-0 p-l-0 width-auto">
+            <action-button (selectedAction)="getSelectedAction($event)"
+                           (toggleFilter)="getFiltertoggle($event)" [activePage]="'archive'" [actions]="actions"
+                           [disableSelect]="disableAction" [totalTableRecords]="archiveWorkitems.totalCount"
+                           [selectedItemCount]="selectedCount" [hasFilterRes]="advanceFilterShown"
+                           (clearFilter)="closeFilters($event)" [userId]="role.id" [activeTab]="'sent'"></action-button>
+          </div>
+          <div class="ui-g-12 ui-md-2 p-b-0">
+            <div class="ui-g-12 colMultiselect p-b-0 m-b-sm">
+              <mat-select placeholder="Columns" [(ngModel)]="selectedSentColumns"
+                          (selectionChange)="columnSelectionChanged($event)" multiple>
+                <mat-option *ngFor="let column of sentColumns" [value]="column.value">{{column.label}}</mat-option>
+              </mat-select>
+            </div>
+          </div>
+          <div class="ui-g-12 ui-md-3 p-r-0 p-l-0 pull-right">
+            <p-menubar [model]="archiveTieredItems" styleClass="pull-right export-menuItem"></p-menubar>
+          </div>
+          <div class="ui-g-12 ui-md-12 hide p-0 filter">
+           <app-filter (filterData)="getArchives($event)" [filterQuery]="request" [activePage]="'sent'"
+                  [filterSenderoptions]="recipients" [filterCount]="filterCount" [forOptions]="forOptions"
+                  [filteredData]="archiveWorkitems.workitems" (clearFilter)="clearFilterResults($event)"></app-filter>
+          </div>
+          <div class="min-height-400" [ngClass]="{'max-h-265':advanceFilterShown}">
+          <data-table (sendData)="getData($event)" [totalRecords]="totalRecords" [emptyMessage]="emptyMessage"
+                      [activePage]="'sent'" [showInfoIcon]="false"
+                      (sendSortPagination)="assignSortNotPaginationInfo($event)"
+                      [showDownloadIcon]="false" [showAddCartIcon]="false" [tableData]="archiveWorkitems.workitems"
+                      [colHeaders]="sentColHeaders"
+                      (refreshScreen)="refreshTable($event)" [itemsPerPage]="itemsPerPage" [rowExpandable]="true"
+                      [lazy]="lazy"></data-table>
+          </div>
+        </mat-tab>
+      </ng-container>
+    </ng-container>
+  </ng-container>
+
+  <ng-container *ngIf="user && user.delegated">
+    <ng-container *ngIf="user.delegated.length > 0">
+      <ng-container *ngFor="let delegate of user.delegated">
+        <mat-tab label="{{delegate.delName}} Inbox">
+          <ng-template mat-tab-label>
+            {{delegate.delName}} Inbox
+            <span class="badge m-l-sm ui-state-highlight" *ngIf="delInboxTabsTotalCount[delegate.userId]">{{delInboxTabsTotalCount[delegate.userId]}}</span>
+          </ng-template>
+          <div class="ui-g-12 ui-md-1  p-b-0 p-l-0 width-auto">
+            <action-button (selectedAction)="getSelectedAction($event)"
+                           (toggleFilter)="getFiltertoggle($event)" [activePage]="'archive'" [actions]="actions"
+                           [totalTableRecords]="archiveWorkitems.totalCount"
+                           [disableSelect]="disableAction" [selectedItemCount]="selectedCount"
+                           [hasFilterRes]="advanceFilterShown"
+                           (clearFilter)="closeFilters($event)" [userId]="delegate.userId"
+                           [activeTab]="'inbox'"></action-button>
+          </div>
+          <div class="ui-g-12 ui-md-2 p-b-0">
+            <div class="ui-g-12 colMultiselect p-b-0 m-b-sm">
+              <mat-select placeholder="Columns" [(ngModel)]="selectedColumns"
+                          (selectionChange)="columnSelectionChanged($event)" multiple>
+                <mat-option *ngFor="let column of columns" [value]="column.value">{{column.label}}</mat-option>
+              </mat-select>
+            </div>
+          </div>
+          <div class="ui-g-12 ui-md-3 p-r-0 p-l-0 pull-right">
+            <p-menubar [model]="archiveTieredItems" styleClass="pull-right export-menuItem"></p-menubar>
+          </div>
+          <div class="ui-g-12 ui-md-12 hide p-0 filter">
+            <app-filter (filterData)="getArchives($event)" [filterQuery]="request" [activePage]="'inbox'"
+                  [filterSenderoptions]="sender" [filterCount]="filterCount" [forOptions]="forOptions"
+                  [filteredData]="archiveWorkitems.workitems" (clearFilter)="clearFilterResults($event)"></app-filter>
+          </div>
+        <div class="min-height-400" [ngClass]="{'max-h-265':advanceFilterShown}">
+          <data-table (sendData)="getData($event)" [totalRecords]="totalRecords" [emptyMessage]="emptyMessage"
+                      [activePage]="'inbox'" [showInfoIcon]="false"
+                      (sendSortPagination)="assignSortNotPaginationInfo($event)"
+                      [showDownloadIcon]="false" [showAddCartIcon]="false" [tableData]="archiveWorkitems.workitems"
+                      [colHeaders]="colHeaders"
+                      (refreshScreen)="refreshTable($event)" [itemsPerPage]="itemsPerPage" [rowExpandable]="true"
+                      [lazy]="lazy"></data-table>
+        </div>
+
+        </mat-tab>
+        <mat-tab label="{{delegate.delName}} Sent">
+          <ng-template mat-tab-label>
+            {{delegate.delName}} Sent
+            <span class="badge m-l-sm ui-state-highlight" *ngIf="delSentTabsTotalCount[delegate.userId]">{{delSentTabsTotalCount[delegate.userId]}}</span>
+          </ng-template>
+          <div class="ui-g-12 ui-md-1  p-b-0 p-l-0 width-auto">
+            <action-button (selectedAction)="getSelectedAction($event)"
+                           (toggleFilter)="getFiltertoggle($event)" [activePage]="'archive'" [actions]="actions"
+                           [totalTableRecords]="archiveWorkitems.totalCount"
+                           [disableSelect]="disableAction" [selectedItemCount]="selectedCount"
+                           [hasFilterRes]="advanceFilterShown"
+                           (clearFilter)="closeFilters($event)" [userId]="delegate.userId"
+                           [activeTab]="'sent'"></action-button>
+          </div>
+          <div class="ui-g-12 ui-md-2 p-b-0">
+            <div class="ui-g-12 colMultiselect p-b-0 m-b-sm">
+              <mat-select placeholder="Columns" [(ngModel)]="selectedSentColumns"
+                          (selectionChange)="columnSelectionChanged($event)" multiple>
+                <mat-option *ngFor="let column of sentColumns" [value]="column.value">{{column.label}}</mat-option>
+              </mat-select>
+            </div>
+          </div>
+          <div class="ui-g-12 ui-md-3 p-r-0 p-l-0 pull-right">
+            <p-menubar [model]="archiveTieredItems" styleClass="pull-right export-menuItem"></p-menubar>
+          </div>
+          <div class="ui-g-12 ui-md-12 hide p-0 filter">
+            <app-filter (filterData)="getArchives($event)" [filterQuery]="request" [activePage]="'sent'"
+                  [filterSenderoptions]="recipients" [filterCount]="filterCount" [forOptions]="forOptions"
+                  [filteredData]="archiveWorkitems.workitems" (clearFilter)="clearFilterResults($event)"></app-filter>
+          </div>
+          <div class="min-height-400" [ngClass]="{'max-h-265':advanceFilterShown}">
+          <data-table (sendData)="getData($event)" [totalRecords]="totalRecords" [emptyMessage]="emptyMessage"
+                      [activePage]="'sent'" [showInfoIcon]="false"
+                      (sendSortPagination)="assignSortNotPaginationInfo($event)"
+                      [showDownloadIcon]="false" [showAddCartIcon]="false" [tableData]="archiveWorkitems.workitems"
+                      (refreshScreen)="refreshTable($event)" [colHeaders]="sentColHeaders" [itemsPerPage]="itemsPerPage"
+                      [rowExpandable]="true" [lazy]="lazy"></data-table>
+          </div>
+        </mat-tab>
+      </ng-container>
+    </ng-container>
+  </ng-container>
+</mat-tab-group>
+
+<p-dialog modal="modal" showEffect="fade" [(visible)]="showDelegationInactiveDialog" [height]="120" [width]="380" (onHide)="reloadApp()">
+  <p-header>
+       Delegated user Access has been ended.
+  </p-header>
+   <p-footer>
+     <button pButton class="pull-right" type="button" label="Ok" (click)="reloadApp()"></button>
+  </p-footer>
+</p-dialog>

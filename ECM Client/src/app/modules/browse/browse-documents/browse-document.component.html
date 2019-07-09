@@ -1,0 +1,64 @@
+<vertical-split-pane
+    primary-component-minsize="300"
+    secondary-component-minsize="1080"
+    local-storage-key="split-pane"
+    primary-component-initialratio="0.2">
+  <div class="split-pane-content-primary file-tree ">
+        <div class="upper ">
+<!--<div-->
+  <!--class="ui-g-12 ui-md-1 p-0 file-tree">-->
+  <tree ></tree>
+<!--</div>-->
+           </div>
+    </div>
+  <div class="split-pane-content-secondary">
+        <div class="lower">
+
+<div class="ui-g-12 ui-md-12 p-0 p-l-sm p-r-sm with-tree">
+  <div class="ui-g-12 ui-md-2 p-t-0">
+    <button pButton type="button" [disabled]="folderPath==='/ECMRootFolder/Public Folders/'" label="Add Document" (click)="addDocTrigger();"
+            class="pull-left"></button>
+  </div>
+  <div class="ui-g-12 ui-md-9">
+    <span class="folder-path p-b-md">{{folderPath}}</span>
+  </div>
+  <div class="ui-g-12 ui-md-1 p-t-0 p-r-0">
+    <button pButton type="button" label="Export" (click)="exportToExcel();"
+            class="pull-right" [disabled]="!documentFolders || documentFolders.length==0"></button>
+  </div>
+  <div  *ngIf="documentFolders " class="ui-g-12 p-r-0 p-t-0">
+    <data-table  [showCount]="true" [totalCount]="documentFolders.length" [emptyMessage]="emptyMessage" (sendData)="getData($event,sidemenu);"
+                (refreshScreen)="refreshTable($event);" [tableData]="documentFolders" [showDownloadIcon]="false"
+                [showAddCartIcon]="false" [showInfoIcon]="true" [colHeaders]="colHeaders" [totalRecords]="documentFolders?documentFolders.length:0"
+                [itemsPerPage]="itemsPerPage"></data-table>
+    <div [ngClass]="{'hidden':!selectedItem || selectedItem.length===0}">
+      <aside-menu #sidemenu side="right" width="300px" isBackdrop="false" sideMode="slide">
+        <app-rightpanel (sendFolders)="getBrowseUpdated($event);" (sendMoveToFolder)="getMoveToFolder($event)" [currentScreen]="screen"
+                        (refreshScreen)="refresh($event);" (togglePanel)="toggle()"></app-rightpanel>
+      </aside-menu>
+    </div>
+  </div>
+</div>
+           </div>
+    </div>
+</vertical-split-pane>
+
+<div *ngIf="openDocVisible">
+  <p-dialog [(visible)]="openDocVisible" modal="modal" [width]="1000" showEffect="fade" [resizable]="false" >
+    <p-header>
+      Add Document
+    </p-header>
+    <div class="ui-g">
+      <div class="ui-g-12">
+        <div class="ui-tabview-panel add-doc-container">
+          <app-add-document [assignedPath]="assignedPath" [assignedId]="assignedId" (onAddSuccess)="onDocumentAdded()" [screen]="'BrowseModel'"></app-add-document>
+        </div>
+      </div>
+    </div>
+  </p-dialog>
+</div>
+<div class="progress-bar">
+  <div [ngBusy]="{busy: busy, message:'', backdrop: true}"></div>
+</div>
+
+

@@ -1,0 +1,16 @@
+<p-tabView styleClass="m-h-100" (onChange)="tabChange($event)">
+  <p-tabPanel header="General" leftIcon="ui-icon-settings">
+    <app-general></app-general>
+  </p-tabPanel>
+  <p-tabPanel header="List" leftIcon="ui-icon-list">
+     <div *ngIf="activeTab===1">
+        <app-list></app-list>
+     </div>
+  </p-tabPanel>
+  <p-tabPanel header="Out Of Office" leftIcon="ui-icon-directions-walk">
+    <div *ngIf="activeTab===2">
+        <app-delegation></app-delegation>
+    </div>
+  </p-tabPanel>
+</p-tabView>
+

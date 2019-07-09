@@ -1,0 +1,98 @@
+<div class="ui-g-12 ui-md-12 p-t-0 p-r-0">
+    <button pButton type="button" label="Export" (click)="exportToExcel();"
+            class="pull-right" [disabled]="!errorLogs"></button>
+  </div>
+<div class="ui-g-12  p-0 h-100">
+
+    <div class="ui-widget-header" style="padding:2px 10px;border-bottom: 0 none">
+    <!-- global filter -->
+    <div class="ui-g">
+      <div class="ui-g-12 p-0">
+        <table>
+          <tr>
+            <td><i class="fa fa-search v-m m-r-md"></i></td>
+            <td>
+              <input #gb type="text" pInputText size="50"
+                     placeholder="Filter Text" style="color: #ffffff"
+                     class="v-m p-0">
+            </td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  </div>
+  <div class="ui-g-12 p-0 max-h-600">
+    <p-dataTable [resizableColumns]="true"  [reorderableColumns]="true"  [value]="errorLogs" [rows]="itemsPerPage" [paginator]="true" [responsive]="true" [globalFilter]="gb">
+      <!--<p-column  *ngFor="let col of colHeaders" [hidden]="col.hidden" [field]="col.field" [header]="col.header"-->
+                  <!--[sortable]="true"></p-column>-->
+       <p-column [sortable]="true" field="id" header="Id"></p-column>
+          <p-column [sortable]="true" field="type" header="Error Type"></p-column>
+           <p-column [sortable]="true" field="summary" header="Summary"></p-column>
+            <p-column [sortable]="true" field="timeStamp" header="Log Date"></p-column>
+            <!--<p-column [sortable]="true" field="context" header="Context"></p-column>-->
+       <!--<p-column [sortable]="true" field="servername" header="Server Name"></p-column>-->
+      <!--<p-column [sortable]="true" field="appname" header="App Name"></p-column>-->
+      <p-column styleClass="col-button">
+       <ng-template pTemplate="header">
+        <button pButton type="button" icon="ui-icon-autorenew" title="Refresh" (click)="refresh()"
+                class="remove-btn"></button>
+      </ng-template>
+         <ng-template let-dat="rowData" let-i="rowIndex" pTemplate="body">
+            <button pButton type="button" icon="ui-icon-info-outline" title="Info" (click)="viewErrors(dat)"
+                    class="remove-btn v-m"></button>
+              <!--<button pButton type="button" (click)="openInfoError(dat)" icon="ui-icon-info-outline" title="Info"-->
+                      <!--class="remove-btn v-m"-->
+              <!--&gt;</button>-->
+         </ng-template></p-column>
+    </p-dataTable>
+  </div>
+</div>
+ <p-dialog appendTo="body" modal="modal" showEffect="fade" [(visible)]="openDetails" width="600" height="450">
+    <p-header>
+      Log Details
+    </p-header>
+    <div class="ui-tabview-panel folder-path-selection-model">
+      <span>{{details}}</span>
+    </div>
+  </p-dialog>
+
+<p-dialog *ngIf="allerrors" modal="modal" showEffect="fade" [(visible)]="viewerror" width="600">
+  <p-header>
+   {{allerrors.type}}
+  </p-header>
+
+   <table class="ecm-table  w-100">
+        <tbody>
+        <tr class="even">
+          <th style="width:26%" class="text-align-left">Id:</th>
+          <td>{{allerrors.id}}</td>
+        </tr>
+        <tr>
+        <tr class="odd">
+          <th style="width:26%" class="text-align-left">Error Type:</th>
+          <td> {{allerrors.type}}</td>
+        </tr>
+        <tr class="even">
+          <th style="width:26%" class="text-align-left">Summary:</th>
+          <td>{{allerrors.summary}}</td>
+        </tr>
+        <tr class="odd">
+          <th style="width:26%" class="text-align-left">Log Date:</th>
+          <td>{{allerrors.timeStamp}}</td>
+        </tr>
+        <tr class="even">
+          <th style="width:26%" class="text-align-left">Context:</th>
+          <td>{{allerrors.context}}</td>
+        </tr>
+        <tr class="odd">
+          <th style="width:26%" class="text-align-left">Server Name:</th>
+          <td>{{allerrors.servername}}</td>
+        </tr>
+
+        <tr class="even">
+          <th style="width:26%" class="text-align-left">App Name:</th>
+          <td>{{allerrors.appname}}</td>
+        </tr>
+        </tbody>
+      </table>
+</p-dialog>

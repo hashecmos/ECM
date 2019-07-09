@@ -1,0 +1,59 @@
+<div class="ui-g">
+  <div class="ui-g-12 ">
+    <form #userPrefsForm="ngForm" (ngSubmit)="updateGeneralSetting()">
+      <div class="ui-g form-group">
+        <div class="ui-g-12 ui-md-2">
+          <label>Page Size</label>
+        </div>
+        <div class="ui-g-12 ui-md-2">
+          <p-dropdown [options]="pageSize" [(ngModel)]="defaultNo" [autoWidth]="false" name="defaultNo" [placeholder]="'Select'" autoDisplayFirst="false"></p-dropdown>
+        </div>
+      </div>
+      <div class="ui-g form-group">
+        <div class="ui-g-12 ui-md-2">
+          <label>Default Class</label>
+        </div>
+        <div class="ui-g-12 ui-md-2">
+          <p-dropdown [options]="templates" [(ngModel)]="selectedTemplate" [autoWidth]="false" name="selectedTemplate" [placeholder]="'Select'" autoDisplayFirst="false"></p-dropdown>
+        </div>
+      </div>
+      <div class="ui-g form-group">
+        <div class="ui-g-12 ui-md-2">
+          <label>For</label>
+        </div>
+        <div class="ui-g-12 ui-md-2">
+          <p-dropdown [options]="actions" [(ngModel)]="selectedActions" [autoWidth]="false" name="selectedActions" [placeholder]="'Select'" autoDisplayFirst="false"></p-dropdown>
+        </div>
+      </div>
+      <div class="ui-g form-group">
+        <div class="ui-g-12 ui-md-2">
+          <label>Theme</label>
+        </div>
+        <div class="ui-g-12 ui-md-2">
+          <p-dropdown [options]="themes" [(ngModel)]="userService.selectedTheme" (onChange)="userService.applyTheme()"
+                      [autoWidth]="false" name="selectedTheme" [placeholder]="'Select'" autoDisplayFirst="false"></p-dropdown>
+        </div>
+      </div>
+      <div class="ui-g form-group">
+        <div class="ui-g-12 ui-md-2">
+          <label>Default View</label>
+        </div>
+        <div class="ui-g-12 ui-md-2">
+          <p-dropdown [options]="defaultViews" [(ngModel)]="userService.defaultView" [autoWidth]="false" name="defaultView" [placeholder]="'Select'" autoDisplayFirst="false"></p-dropdown>
+        </div>
+      </div>
+      <div class="ui-g form-group">
+        <div class="ui-g-12 ui-md-2">
+        </div>
+        <div class="ui-g-12 ui-md-2 ">
+          <button pButton type="submit" label="Update" class="blue-btn pull-right" [disabled]="!userPrefsForm.form.dirty"></button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+
+
+
+

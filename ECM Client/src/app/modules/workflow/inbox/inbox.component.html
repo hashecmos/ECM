@@ -1,0 +1,166 @@
+<mat-tab-group (selectChange)="tabChange($event.tab.textLabel,selectedTabIndex,true)" [(selectedIndex)]="selectedTabIndex">
+  <mat-tab label="{{user.fulName}}" templateLabel="" *ngIf="user">
+    <ng-template mat-tab-label>
+      {{user.fulName }}
+      <span class="badge m-l-sm ui-state-highlight" *ngIf="usersTabTotalCountBadge[user.EmpNo]">{{usersTabTotalCountBadge[user.EmpNo]}}</span>
+    </ng-template>
+    <div class="ui-g-12 ui-md-2 p-b-0 p-l-0 width-auto">
+      <action-button (selectedAction)="getSelectedAction($event,op)" (toggleFilter)="getFiltertoggle($event)"
+                     [activePage]="'inbox'" [actions]="actions" [disableSelect]="disableAction"
+                     [selectedItemCount]="selectedCount" [totalTableRecords]="totalRecords"
+                     [hasFilterRes]="advanceFilterShown" (clearFilter)="closeFilters($event)"
+                     [userId]="user.EmpNo"></action-button>
+      <p-overlayPanel [dismissable]="true" [style]="{'z-index':'999'}" #op>
+        <p-calendar appendTo="body" (onSelect)="selectBeforeDate($event)" [(ngModel)]="beforeDate" [inline]="true"
+                    [monthNavigator]="true" [yearNavigator]="true" yearRange="1900:2030"></p-calendar>
+      </p-overlayPanel>
+    </div>
+    <div class="ui-g-12 ui-md-2 p-b-0 ">
+      <div class="ui-g-12 colMultiselect p-b-0 m-b-sm ">
+        <mat-select placeholder="Columns" [(ngModel)]="selectedColumns"
+                    (selectionChange)="columnSelectionChanged($event)" multiple>
+          <mat-option *ngFor="let column of columns" [value]="column.value">{{column.label}}</mat-option>
+        </mat-select>
+      </div>
+    </div>
+
+    <div class="ui-g-12 ui-md-3 p-r-0 p-l-0 pull-right">
+      <p-menubar [model]="inboxTieredItems" styleClass="pull-right export-menuItem"></p-menubar>
+    </div>
+    <div class="ui-g-12 ui-md-12 hide p-0 filter">
+      <app-filter (filterData)="searchInbox($event)" [filterQuery]="request" [activePage]="'inbox'"
+                  [filterSenderoptions]="sender" [filterCount]="filterCount" [forOptions]="forOptions"
+                  [searchFromDashboard]="dashboardSearchQuery[user.EmpNo]" [id]="user.EmpNo"
+                  [filteredData]="this.inboxWorkitems.workitems" (clearFilter)="clearFilterResults($event)"></app-filter>
+    </div>
+    <div class="min-height-400" [ngClass]="{'max-h-265':advanceFilterShown}">
+      <data-table [lazy]="lazy" [emptyMessage]="emptyMessage" (sendSortPagination)="assignSortNotPaginationInfo($event)"
+                  [totalRecords]="totalRecords"
+                  (refreshScreen)="refreshTable($event)" (sendData)="getData($event)" [showInfoIcon]="false"
+                  [showDownloadIcon]="false" [showAddCartIcon]="false" [tableData]="inboxWorkitems.workitems"
+                  [colHeaders]="colHeaders" [itemsPerPage]="itemsPerPage" [rowExpandable]="true"
+                  [activePage]="'inbox'" (toggleProgressDialogue)="showProgressDialogue($event)"
+            [showProgressBtn]="true"></data-table>
+    </div>
+  </mat-tab>
+  <ng-container *ngIf="user && user.roles">
+    <ng-container *ngIf="user.roles.length > 0">
+      <ng-container *ngFor="let role of user.roles;let r=index;">
+        <mat-tab label="{{role.name}}">
+          <ng-template mat-tab-label>
+            {{role.name }} <span class="badge m-l-sm ui-state-highlight" *ngIf="usersTabTotalCountBadge[role.id]">{{usersTabTotalCountBadge[role.id]}}</span>
+          </ng-template>
+          <div class="ui-g-12 ui-md-2 p-b-0 p-l-0 width-auto">
+            <action-button (selectedAction)="getSelectedAction($event,op)" (toggleFilter)="getFiltertoggle($event)"
+                           [activePage]="'inbox'" [actions]="actions" [disableSelect]="disableAction"
+                           [selectedItemCount]="selectedCount" [totalTableRecords]="totalRecords"
+                           [hasFilterRes]="advanceFilterShown" (clearFilter)="closeFilters($event)"
+                           [userId]="role.id"></action-button>
+            <p-overlayPanel [dismissable]="true" [style]="{'z-index':'999'}" #op>
+              <p-calendar (onSelect)="selectBeforeDate($event)" [(ngModel)]="beforeDate" [inline]="true"
+                          [monthNavigator]="true" [yearNavigator]="true" yearRange="1900:2030"></p-calendar>
+            </p-overlayPanel>
+          </div>
+          <div class="ui-g-12 ui-md-2 p-b-0">
+            <div class="ui-g-12 colMultiselect p-b-0 m-b-sm">
+              <mat-select placeholder="Columns" [(ngModel)]="selectedColumns"
+                          (selectionChange)="columnSelectionChanged($event)" multiple>
+                <mat-option *ngFor="let column of columns" [value]="column.value">{{column.label}}</mat-option>
+              </mat-select>
+            </div>
+          </div>
+          <div class="ui-g-12 ui-md-3 p-r-0 p-l-0 pull-right">
+            <p-menubar [model]="inboxTieredItems" styleClass="pull-right export-menuItem"></p-menubar>
+          </div>
+          <div class="ui-g-12 ui-md-12 hide p-0 filter">
+            <app-filter (filterData)="searchInbox($event)" [filterQuery]="request" [activePage]="'inbox'"
+                        [filterSenderoptions]="sender" [filterCount]="filterCount" [forOptions]="forOptions"
+                        [searchFromDashboard]="dashboardSearchQuery[role.id]" [id]="role.id"
+                        [filteredData]="this.inboxWorkitems.workitems" (clearFilter)="clearFilterResults($event)"></app-filter>
+          </div>
+          <div class="min-height-400">
+            <data-table [lazy]="lazy" [emptyMessage]="emptyMessage"
+                        (sendSortPagination)="assignSortNotPaginationInfo($event)" [totalRecords]="totalRecords"
+                        (refreshScreen)="refreshTable($event)" (sendData)="getData($event)" [showInfoIcon]="false"
+                        [showDownloadIcon]="false" [showAddCartIcon]="false" [tableData]="inboxWorkitems.workitems"
+                        [colHeaders]="colHeaders" [itemsPerPage]="itemsPerPage" [rowExpandable]="true"
+                        [activePage]="'inbox'" (toggleProgressDialogue)="showProgressDialogue($event)"
+            [showProgressBtn]="true"></data-table>
+          </div>
+        </mat-tab>
+      </ng-container>
+    </ng-container>
+  </ng-container>
+
+  <ng-container *ngIf="user && user.delegated">
+    <ng-container *ngIf="user.delegated.length > 0">
+      <ng-container *ngFor="let delegate of user.delegated; let d=index;">
+        <mat-tab label="{{delegate.delName}}">
+          <ng-template mat-tab-label>
+            {{delegate.delName }}
+            <span class="badge m-l-sm ui-state-highlight" *ngIf="usersTabTotalCountBadge[delegate.userId]">{{usersTabTotalCountBadge[delegate.userId]}}</span>
+          </ng-template>
+          <div class="ui-g-12 ui-md-2 p-b-0 p-l-0 width-auto">
+            <action-button (selectedAction)="getSelectedAction($event,op)" (toggleFilter)="getFiltertoggle($event)"
+                           [activePage]="'inbox'" [actions]="actions" [disableSelect]="disableAction"
+                           [selectedItemCount]="selectedCount" [totalTableRecords]="totalRecords"
+                           [hasFilterRes]="advanceFilterShown" (clearFilter)="closeFilters($event)"
+                           [userId]="delegate.userId"></action-button>
+            <p-overlayPanel [dismissable]="true" [style]="{'z-index':'999'}" #op>
+              <p-calendar (onSelect)="selectBeforeDate($event)" [(ngModel)]="beforeDate" [inline]="true"
+                          [monthNavigator]="true" [yearNavigator]="true" yearRange="1900:2030"></p-calendar>
+            </p-overlayPanel>
+          </div>
+          <div class="ui-g-12 ui-md-2 p-b-0">
+            <div class="ui-g-12 colMultiselect p-b-0 m-b-sm">
+              <mat-select placeholder="Columns" [(ngModel)]="selectedColumns"
+                          (selectionChange)="columnSelectionChanged($event)" multiple>
+                <mat-option *ngFor="let column of columns" [value]="column.value">{{column.label}}</mat-option>
+              </mat-select>
+            </div>
+          </div>
+          <div class="ui-g-12 ui-md-3 p-r-0 p-l-0 pull-right">
+            <p-menubar [model]="inboxTieredItems" styleClass="pull-right export-menuItem"></p-menubar>
+          </div>
+          <div class="ui-g-12 ui-md-12 hide p-0 filter ">
+            <app-filter (filterData)="searchInbox($event)" [filterQuery]="request" [activePage]="'inbox'"
+                        [filterSenderoptions]="sender" [filterCount]="filterCount" [forOptions]="forOptions"
+                        [searchFromDashboard]="dashboardSearchQuery[delegate.userId]" [id]="delegate.userId"
+                        [filteredData]="this.inboxWorkitems.workitems" (clearFilter)="clearFilterResults($event)"></app-filter>
+          </div>
+          <div class="min-height-400">
+            <data-table [lazy]="lazy" [emptyMessage]="emptyMessage"
+                        (sendSortPagination)="assignSortNotPaginationInfo($event)" [totalRecords]="totalRecords"
+                        (refreshScreen)="refreshTable($event)" (sendData)="getData($event)" [showInfoIcon]="false"
+                        [showDownloadIcon]="false" [showAddCartIcon]="false" [tableData]="inboxWorkitems.workitems"
+                        [colHeaders]="colHeaders" [itemsPerPage]="itemsPerPage" [rowExpandable]="true"
+                        [activePage]="'inbox'" (toggleProgressDialogue)="showProgressDialogue($event)"
+            [showProgressBtn]="true"></data-table>
+          </div>
+        </mat-tab>
+
+      </ng-container>
+    </ng-container>
+  </ng-container>
+</mat-tab-group>
+
+<p-confirmDialog></p-confirmDialog>
+
+<p-dialog styleClass="p-0" [styleClass]="'max-h-488'" appendTo="body" modal="modal" showEffect="fade" [(visible)]="displayProgress"
+              [height]="550" [width]="650" [contentStyle]="{'overflow':'auto'}"
+              (onHide)="hideDisplayProgress()">
+      <p-header>
+       Work Progress
+      </p-header>
+      <app-document-status [workitemProgress]="selectedWorkitem.progress"
+                           (onRemoveProgress)="removeWorkitemProgress($event)" (onAddProgress)="addWorkitemProgress($event)">
+      </app-document-status>
+    </p-dialog>
+<p-dialog modal="modal" showEffect="fade" [(visible)]="showDelegationInactiveDialog" [height]="120" [width]="380" (onHide)="reloadApp()">
+  <p-header>
+       Delegated user Access has been ended.
+  </p-header>
+  <p-footer>
+     <button pButton class="pull-right" type="button" label="Ok" (click)="reloadApp()"></button>
+  </p-footer>
+</p-dialog>

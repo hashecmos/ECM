@@ -1,0 +1,188 @@
+<div class="ui-g  ">
+      <div class="ui-g-12 ui-md-12 p-0">
+        <form>
+          <div class="ui-g">
+            <div class="ui-g-4 ui-md-5 ui-sm-4 p-0 p-r-sm">
+              <div class="ui-g-12 ui-md-3 p-0">
+                <button pButton type="button" label="Add Lookup" (click)="showEditLookup=true;addEditLookup()" class="m-b-md"></button>
+              </div>
+              <div class="ui-g-12 ui-md-9 p-0">
+                <form #searchLookupForm="ngForm">
+                  <div class="ui-g-12 ui-md-5 p-l-0 p-r-0">
+                    <label class="text-bold">Filter Mapped Lookups:</label>
+                  </div>
+                  <div class="ui-g-12 ui-md-6 p-l-0 p-r-0">
+                    <p-autoComplete id="orgUnit" [ngModel]="orgName" [suggestions]="suggestionsResults" (completeMethod)="search($event)" field="desc"
+                                    (onSelect)="orgUnitSelected($event);" [size]="30" placeholder="Search OrgUnit"
+                                    [minLength]="1" [appendTo]="'body'" [required]="true" name="searchOrgCode">
+                          <ng-template let-selectedorgCode pTemplate="item">
+                            <div class="ui-helper-clearfix">
+                              <span class="pull-left">{{selectedorgCode.desc}}</span>
+                              <span class="pull-right font-light">{{selectedorgCode.orgCode}}</span>
+                            </div>
+                          </ng-template>
+                   </p-autoComplete>
+                  </div>
+                  <button pButton type="button" icon="ui-icon-clear" title="Clear" (click)="confirmClear();searchLookupForm.reset();"
+                        class="remove-btn v-m m-t-sm"></button>
+                </form>
+              </div>
+              <div class="ui-g-12 ui-md-12 p-0">
+               <div class="ui-widget-header" style="padding:2px 10px;border-bottom: 0 none">
+                <!-- global filter -->
+                <div class="ui-g">
+                  <div class="ui-g-12 p-0">
+                    <table>
+                      <tr>
+                        <td><i class="fa fa-search v-m m-r-md"></i></td>
+                        <td>
+                          <input #gb type="text" pInputText size="50"
+                                 placeholder="Filter Text" style="color: #ffffff" [(ngModel)]="query"
+                                 class="v-m p-0" name="query">
+                        </td>
+                      </tr>
+                    </table>
+                  </div>
+                </div>
+              </div>
+              <p-dataTable [reorderableColumns]="true"  selectionMode="single" [scrollable]="true" scrollHeight="450px"  [globalFilter]="gb"
+                           [(selection)]="selectedLookup" [value]="lookupList" (onFilter)="filterLookup($event)"
+                           (onRowClick)="showLookUpValues($event.data)" [rows]="10">
+
+                <p-column [sortable]="true" [style]="{width: '20%'}" field="id" header="Id"></p-column>
+                <p-column  [sortable]="true" [style]="{width: '60%'}" field="name" header="Name"></p-column>
+                 <p-column [style]="{width: '20%'}" styleClass="col-button">
+                     <ng-template pTemplate="header">
+                      <button pButton type="button" icon="ui-icon-autorenew" title="Refresh" (click)="refreshtable()"
+                              class="remove-btn"></button>
+                    </ng-template>
+                  <ng-template let-rowdat="rowData" let-i="rowIndex" pTemplate="body">
+                    <button pButton type="button" (click)="showEditLookup=true;addEditLookup(rowdat,i)" icon="ui-icon-edit"
+                            title="Edit"
+                            class="remove-btn v-m"
+                    ></button>
+                  <button pButton type="button" icon="ui-icon-delete" title="Delete" (click)="confirmdeleteLookup(rowdat)"
+                    class="remove-btn v-m"></button>
+                  </ng-template>
+                </p-column>
+
+              </p-dataTable>
+             </div>
+            </div>
+            <div class="ui-g-7 ui-md-7 ui-sm-7 p-t-0 p-l-0 p-r-0">
+              <div class="ui-g-12 p-b-0 p-t-0 p-r-0">
+                <div class="ui-g-12 ui-md-9 p-l-0 p-r-0">
+                  <label *ngIf="selectedLookup" class="text-bold">Lookup:</label>
+                  <label *ngIf="selectedLookup">{{selectedLookup.name}}</label>
+                </div>
+                <div class="ui-g-12 ui-md-3 p-0">
+                   <button pButton type="button" label="Add Lookup Values" (click)="showEdit=true;add()" class="m-b-md pull-right"></button>
+                </div>
+              <!--  <div *ngIf="selectedLookup" class="bold p-t-xll show-inline">Lookup: {{selectedLookup.name}}</div>
+                <button pButton type="button" label="Add Lookup Values" (click)="showEdit=true;add()" class="m-b-md pull-right"></button>-->
+              </div>
+              <div class="ui-g-12 p-t-0 p-r-0">
+               <div class="ui-widget-header" style="padding:2px 10px;border-bottom: 0 none">
+                <!-- global filter -->
+                <div class="ui-g">
+                  <div class="ui-g-12 p-0">
+                    <table>
+                      <tr>
+                          <td>
+                           <div class="search-box ">
+                      <span></span>
+                      <span *ngIf="selectedLookup">
+                      {{selectedLookup.name}}
+                    </span>
+                         </div>
+                        </td>
+                        <td><i class="fa fa-search v-m m-r-md"></i></td>
+                        <td>
+                          <input #gbval type="text" pInputText size="50"
+                                 placeholder="Filter Text" style="color: #ffffff" [(ngModel)]="queryValue"
+                                 class="v-m p-0" name="queryValue">
+                        </td>
+                      </tr>
+                    </table>
+                  </div>
+                </div>
+              </div>
+
+              <p-dataTable [resizableColumns]="true" [reorderableColumns]="true"  [emptyMessage]="emptyMessage" [scrollable]="true" scrollHeight="450px" [value]="lookupValues" [globalFilter]="gbval">
+                 <p-column [sortable]="true" [style]="{width: '45%'}" field="label" header="Label"></p-column>
+                <p-column  [sortable]="true" [style]="{width: '45%'}" field="value" header="Value"></p-column>
+                <p-column [style]="{width: '10%'}" styleClass="col-button">
+                   <ng-template pTemplate="header">
+        <button pButton type="button" icon="ui-icon-autorenew" title="Refresh" (click)="refresh()"
+                class="remove-btn"></button>
+      </ng-template>
+                  <ng-template let-rowdat="rowData" let-i="rowIndex" pTemplate="body">
+                    <button pButton type="button" (click)="showEdit=true;clickInput(rowdat,i)" icon="ui-icon-edit"
+                            title="Edit"
+                            class="remove-btn v-m"
+                    ></button>
+                      <button pButton type="button" icon="ui-icon-delete" title="Delete" (click)="confirmdeleteLookupValue(rowdat)"
+                    class="remove-btn v-m"></button>
+                  </ng-template>
+                </p-column>
+
+              </p-dataTable>
+                </div>
+            </div>
+          </div>
+        </form>
+
+      </div>
+    </div>
+
+<p-dialog [(visible)]="showEdit" modal="modal" showEffect="fade" [width]="500" [minHeight]="150">
+  <p-header>
+    {{headerTitle}}
+  </p-header>
+  <div class="ui-g-12 ui-md-10">
+    <div class="ui-g form-group">
+      <div class="ui-g-12 ui-md-2">
+        <label>Label:</label>
+      </div>
+      <div class="ui-g-12 ui-md-10">
+        <input type="text" pInputText [(ngModel)]="dat.label" maxlength="300" name="label">
+      </div>
+    </div>
+    <div class="ui-g form-group">
+      <div class="ui-g-12 ui-md-2">
+        <label>Value:</label>
+      </div>
+      <div class="ui-g-12 ui-md-10">
+        <input type="text" pInputText [(ngModel)]="dat.value" maxlength="300" name="value">
+      </div>
+    </div>
+  </div>
+  <p-footer>
+    <button pButton type="button" label="Cancel" (click)="showEdit=false"></button>
+    <button [disabled]="!dat.label || !dat.value" pButton type="submit" label="Save" (click)="save();"></button>
+  </p-footer>
+</p-dialog>
+<p-dialog [(visible)]="showEditLookup" modal="modal" showEffect="fade" [width]="500" [minHeight]="150">
+  <p-header>
+    {{headerTitleLookup}}
+  </p-header>
+  <div class="ui-g-12 ui-md-10">
+    <div class="ui-g form-group">
+      <div class="ui-g-12 ui-md-2">
+        <label>Name:</label>
+      </div>
+      <div class="ui-g-12 ui-md-10">
+        <input type="text" pInputText [(ngModel)]="lookup.name" maxlength="50" name="names">
+      </div>
+    </div>
+
+  </div>
+  <p-footer>
+    <button pButton type="button" label="Cancel" (click)="showEditLookup=false"></button>
+    <button [disabled]="!lookup.name" pButton type="submit" label="Save" (click)="saveLookup();showEditLookup=false"></button>
+  </p-footer>
+</p-dialog>
+<div class="progress-bar">
+  <div [ngBusy]="{busy: busy, message:'', backdrop: true}"></div>
+</div>
+<p-confirmDialog></p-confirmDialog>

@@ -1,0 +1,482 @@
+<div class="ui-g-12 p-0">
+  <div class="ui-g-10 p-l-0 p-t-0">
+    <label class="text-bold p-r-md v-m">{{workitem.subject | truncate : 50 }} </label>
+    <ng-container>
+      <ng-container *ngIf="fromPage[0]==='inbox'">
+        <button id="reply" pButton class="remove-btn v-m" type="button" icon="ui-icon-reply" title="Reply"
+                (click)="replyWorkitem(workitem);"></button>
+        <button *ngIf="workitem.actions!=='Signature' && workitem.actions!=='Initial'" id="reply-all" pButton class="remove-btn v-m" type="button" icon="ui-icon-reply-all" title="Reply All"
+                (click)="replyAllWorkitem(workitem);"></button>
+        <button  id="forward" pButton class="remove-btn v-m" type="button" icon="ui-icon-forward" title="Forward"
+                (click)="forwardWorkitem(workitem);"></button>
+        <button id="finish" pButton class="remove-btn v-m" type="button" icon="ui-icon-remove-circle-outline"
+                title="Finish" (click)="finishWorkitem($event)"></button>
+
+      </ng-container>
+      <ng-container *ngIf="fromPage[0]==='sent' || fromPage[0]==='actioned'">
+        <button id="recall" pButton class="remove-btn v-m" type="button" icon="ui-icon-replay" title="Recall"
+                (click)="recallWorkitem($event);"></button>
+        <button *ngIf="!(workitem.actions === 'Signature')" id="adduser" pButton class="remove-btn v-m" type="button"
+                icon="ui-icon-person-add" title="Add User" (click)="prepareAdduser(workitem);AddUserDialog='true'"></button>
+        <!--<button id="archive" pButton class="remove-btn v-m" type="button" icon="ui-icon-archive"-->
+                <!--title="Archive" (click)="archiveWorkitem($event);"></button>-->
+
+      </ng-container>
+       <button  pButton class="remove-btn v-m" type="button" icon="ui-icon-near-me"
+                title="Relaunch" (click)="relaunchWorkItem(workitem);"></button>
+      <button  pButton class="remove-btn v-m" type="button" icon="ui-icon-hourglass-empty"
+                title="Work Progress" (click)="getWorkitemProgress()"></button>
+    </ng-container>
+  </div>
+  <div class="ui-g-2 p-0">
+    <button id="back" pButton class="remove-btn v-m float-right" type="button" icon="ui-icon-arrow-back" title="Back"
+            (click)="previousPage(workitem);"></button>
+  </div>
+</div>
+<div class="ui-g-12 p-0">
+  <p-accordion [multiple]="true" styleClass="p-0">
+    <div class="ui-g">
+      <div class="ui-g-12 p-0">
+        <p-accordionTab header="Recipients" [selected]="false">
+           <table class="ecm-table w-100">
+            <tbody>
+              <tr class="even">
+                <th class="text-align-left">To:</th>
+                <td><p-autoComplete styleClass="readonly" [disabled]="true" [(ngModel)]="toRecipients" field="name" [multiple]="true">
+                     <ng-template let-value pTemplate="selectedItem">
+                        <span *ngIf="value.userType==='ROLE'" (mouseover)="getRoleMembers(value)" pTooltip="{{value.members}}"
+                         [tooltipStyleClass]="'tooltip'" tooltipPosition="bottom" class="p-r-xlg">{{value.name}}</span>
+                        <span *ngIf="value.userType==='USER'" class="p-r-xlg">{{value.name}}</span>
+                     </ng-template>
+                </p-autoComplete>
+                </td>
+              </tr>
+              <tr class="odd">
+                <th class="text-align-left">Cc:</th>
+                <td><p-autoComplete styleClass="readonly ui-widget-header-bg" [disabled]="true" [(ngModel)]="ccRecipients" field="name" [multiple]="true">
+                     <ng-template let-value pTemplate="selectedItem">
+                        <span *ngIf="value.userType==='ROLE'" (mouseover)="getRoleMembers(value)" pTooltip="{{value.members}}"
+                         [tooltipStyleClass]="'tooltip'" tooltipPosition="bottom" class="p-r-xlg">{{value.name}}</span>
+                        <span *ngIf="value.userType==='USER'" class="p-r-xlg">{{value.name}}</span>
+                     </ng-template>
+                    </p-autoComplete>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </p-accordionTab>
+      </div>
+      <div class="ui-g-12 p-0 p-t-md">
+        <p-accordionTab header="Workitem Details" [selected]="true">
+        <table class="ecm-table w-100">
+          <tbody>
+          <tr class="even">
+            <th class="text-align-left">Subject:</th>
+            <td>{{workitem.subject}}</td>
+            <th class="text-align-left">Due Date:</th>
+            <td>{{workitem.deadline | date : 'dd/MM/yyyy hh:mm a'}}</td>
+          </tr>
+          <tr>
+            <th class="text-align-left">Sender:</th>
+            <td>
+              <ng-container *ngIf="workitem.senderName">{{workitem.senderName}}</ng-container>
+              <ng-container *ngIf="!workitem.senderName">{{workitem.senderRoleName}}</ng-container>
+            </td>
+            <th *ngIf="fromPage[0]==='inbox' || fromPage[0]==='archive'" class="text-align-left">Received On:</th>
+            <th *ngIf="fromPage[0]==='sent'" class="text-align-left">Sent On:</th>
+            <td>{{workitem.receivedDate | date : 'dd/MM/yyyy hh:mm a'}}</td>
+          </tr>
+          <tr class="even">
+            <th class="text-align-left">Originator:</th>
+            <td>{{workitem.wfCreatorName}}</td>
+             <th class="text-align-left">Priority:</th>
+            <td><span *ngIf="workitem.priority=='2'">Normal</span>
+              <span *ngIf="workitem.priority=='3'">High</span>
+              <span *ngIf="workitem.priority=='1'">Low</span>
+            </td>
+          </tr>
+          <tr>
+            <th class="text-align-left">Document From:</th>
+            <td>{{workitem.docFrom}}</td>
+            <th class="text-align-left">Document To:</th>
+            <td>{{workitem.docTo}}</td>
+          </tr>
+          <tr class="even">
+            <th class="text-align-left">For:</th>
+            <td colspan="3">{{workitem.actions}}</td>
+          </tr>
+          <tr>
+            <th class="text-align-left">Instructions:</th>
+            <td colspan="3">{{workitem.instructions}}</td>
+          </tr>
+          <tr class="even">
+            <th class="text-align-left">Remarks:</th>
+            <td colspan="3">{{workitem.wiRemarks}}</td>
+          </tr>
+          <tr *ngIf="workitem.actionTaken!='Launch'" >
+            <th class="text-align-left">Action Taken:</th>
+            <td colspan="3">{{workitem.actionTaken}}</td>
+          </tr>
+          <tr class="even">
+            <th class="text-align-left">Keywords:</th>
+            <td colspan="3">{{workitem.Keywords}}</td>
+          </tr>
+          </tbody>
+        </table>
+       </p-accordionTab>
+      </div>
+      <div class="ui-g-12 p-0 p-t-md">
+        <div class="ui-g-12 p-0">
+          <p-accordionTab header="Attachments" [selected]="true">
+            <div class="ui-md-4">
+              <table class="ecm-table w-100">
+                <thead>
+                  <th></th>
+                  <th class="text-align-left" width="60%">Attachment Name</th>
+                  <th class="text-align-left" width="40%">Actions</th>
+                </thead>
+                <tbody>
+                <tr *ngFor="let attachment of workitem.attachments;let i=index;let isOdd=odd;let isEven=even"
+                    [class.even]="isEven">
+                  <td class="icon p-r-0">
+                    <span *ngIf="attachment.format">
+                      <span class="v-m"></span>
+                      <img src="assets/images/icons/file-pdf-o.png" *ngIf="attachment.format.indexOf('pdf')!==-1">
+                      <img src="assets/images/icons/file-excel-o.png" *ngIf="attachment.format.indexOf('sheet')!==-1 ||
+                       attachment.format.indexOf('xlsx')!==-1">
+                      <img src="assets/images/icons/file-image-o.png" *ngIf="attachment.format.indexOf('image')!==-1">
+                      <img src="assets/images/icons/file-word-o.png" *ngIf="attachment.format.indexOf('msword')!==-1">
+                      <img src="assets/images/icons/file-text-o.png" *ngIf="attachment.format.indexOf('pdf')===-1 && attachment.format.indexOf('sheet')===-1 &&
+                       attachment.format.indexOf('xlsx')===-1 && attachment.format.indexOf('image')===-1  && attachment.format.indexOf('msword')===-1"></span>
+                    <span *ngIf="!attachment.format">
+                      <span class="v-m"></span>
+                      <img src="assets/images/icons/file-text-o.png" class="icon">
+                    </span>
+                  </td>
+                  <td ><a (click)="viewAttachmentLink(attachment)" [ngClass]="{'strike-text': i===strikeIndex }" class="hyperlink" title="Click To View">{{attachment.docTitle}}</a>
+                  </td>
+                  <td class="actions">
+                    <button pButton *ngIf="workitem.actions === 'Signature'" [disabled]="(fromPage[0] === 'sent' && workitem.wfCreatorName === currentUser.fulName) || ESignedAttachments[attachment.docId]" type="button"
+                             title="eSign" class="remove-btn v-m ui-button-icon-only" (click)="eSign(attachment);"> <img src="assets/images/icons/edit.png" class="fa" ></button>
+                    <button pButton *ngIf="workitem.actions === 'Initial'" [disabled]="(fromPage[0] === 'sent' && workitem.wfCreatorName === currentUser.fulName) || ESignedAttachments[attachment.docId]" type="button"
+                             title="Initial" class="remove-btn v-m ui-button-icon-only" (click)="eSign(attachment);"> <img src="assets/images/icons/edit.png" class="fa" ></button>
+                    <button pButton type="button" icon="ui-icon-get-app" title="Download" class="remove-btn v-m"
+                            (click)="downloadDoc(attachment)"></button>
+                    <button pButton type="button" icon="ui-icon-info-outline" title="Info" class="remove-btn v-m"
+                            (click)="openDocInfo(attachment)"></button>
+                    <button pButton type="button" icon="ui-icon-edit" title="Edit Attachment" class="remove-btn v-m"
+                            (click)="openEditDoc(attachment)"></button>
+                     <button *ngIf="isesignverified || workitem.actions === 'Initial'" pButton type="button" icon="ui-icon-check" title="Validate" class="remove-btn v-m" (click)="openDocInValidate(attachment.docId);showValidateDoc=true;"
+                            ></button>
+                    <!--<button pButton type="button" icon="ui-icon-colorize" title="Edit Properties" class="remove-btn v-m"-->
+                            <!--(click)="editProperties=true;openEditDoc(attachment)"></button>-->
+                  </td>
+                </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="ui-md-12">
+              <button *ngIf="displayIframe && !displayinfo && !editAttachment" pButton type="button" icon="ui-icon-close"
+                      title="Close" class="remove-btn v-m" style="float: right" (click)="closeViewer($event)"></button>
+              <div *ngIf="displayIframe"
+                   [ngClass]="{'show': !displayinfo || !editAttachment ,'hide': displayinfo || editAttachment}">
+                <iframe style="width:99%;border: 1px solid;" height="500" [src]="current_url" scrolling="yes"
+                        frameborder="0"></iframe>
+              </div>
+            </div>
+           </p-accordionTab>
+        </div>
+        <!--<div class="ui-g-6 p-0" id="workitemProgressTab">-->
+         <!--<p-accordionTab [selected]="progressTabOpened">-->
+           <!--<p-header>-->
+             <!--<span>Progress {{progressTabOpened}}</span>-->
+             <!--<span><button pButton type="button" icon="ui-icon-refresh" class="remove-btn v-m m-l-sm" (click)="getWorkitemProgress($event)">-->
+             <!--</button>-->
+             <!--</span>-->
+           <!--</p-header>-->
+           <!--<div class="ui-g max-h-350"><div class="ui-g-12 p-0 scrollable">-->
+           <!--<app-document-status [workitemProgress]="workitemProgress" (onRemoveProgress)="removeWorkitemProgress($event)"-->
+                           <!--[showAddBtn]="fromPage[0]==='inbox'"     (onAddProgress)="addWorkitemProgress($event)"></app-document-status>-->
+             <!--</div></div>-->
+         <!--</p-accordionTab>-->
+        <!--</div>-->
+     </div>
+     <div class="ui-g-12 p-0 p-t-md">
+        <p-accordionTab header="Track">
+      <div class="max-h-220">
+        <p-dataTable [value]="workitemHistory" styleClass="scrollable" [(selection)]="selectedRows" [responsive]="true"
+                     selectionMode="single" expandableRows="true" (onRowExpand)="showTrackWorkitem($event)"
+                     [rowExpandMode]="'single'" [responsive]="true" sortMode="multiple" #dt>
+          <p-column expander="true" styleClass="col-icon" [style]="{'width':'44px'}"
+                    (onRowClick)="dt.toggleRow($event.data)"></p-column>
+          <p-column *ngFor="let colHeader of colHeaders" [hidden]="colHeader.hidden" field="{{colHeader.field}}"
+                    header="{{colHeader.header}}" [sortable]="true"></p-column>
+          <!-- row expansion -->
+          <ng-template let-table pTemplate="rowexpansion">
+            <div class="ui-grid ui-grid-responsive ui-fluid">
+              <div class="ui-grid-row">
+                <table *ngIf="trackWorkitemDetails" id="details" class="ecm-table inner-table w-100">
+                  <tbody>
+                  <tr>
+                    <th class="text-align-left">Subject:</th>
+                    <td>{{trackWorkitemDetails.subject}}</td>
+                    <th class="text-align-left">Sender Name:</th>
+                    <td>
+                      <ng-container *ngIf="trackWorkitemDetails.senderName">{{trackWorkitemDetails.senderName}}
+                      </ng-container>
+                      <ng-container *ngIf="!trackWorkitemDetails.senderName">{{trackWorkitemDetails.senderRoleName}}
+                      </ng-container>
+                    </td>
+                  </tr>
+                  <tr class="even">
+                    <th class="text-align-left">Status:</th>
+                    <td>{{trackWorkitemDetails.status}}</td>
+                    <th class="text-align-left">Type:</th>
+                    <td>{{trackWorkitemDetails.type}}</td>
+                  </tr>
+                  <tr>
+                    <th class="text-align-left">Received Date:</th>
+                    <td>{{trackWorkitemDetails.receivedDate | date : 'dd/MM/yyyy hh:mm a'}}</td>
+                    <th class="text-align-left">Due date:</th>
+                    <td>{{trackWorkitemDetails.deadline | date : 'dd/MM/yyyy hh:mm a'}}</td>
+                  </tr>
+                  <tr class="even">
+                    <th class="text-align-left">Reminder:</th>
+                    <td>{{trackWorkitemDetails.reminder | date : 'dd/MM/yyyy hh:mm a'}}</td>
+                    <th class="text-align-left">Priority:</th>
+                    <td>
+                      <span *ngIf="trackWorkitemDetails.priority == '2'">Normal</span>
+                      <span *ngIf="trackWorkitemDetails.priority == '3'">High</span>
+                      <span *ngIf="trackWorkitemDetails.priority == '1'">Low</span>
+                    </td>
+                  </tr>
+                  <tr>
+                    <th class="text-align-left">For:</th>
+                    <td colspan="3"><div class="text-ellipsis">{{trackWorkitemDetails.actions}}</div></td>
+                  </tr>
+                  <tr class="even">
+                    <th class="text-align-left">Instructions:</th>
+                    <td colspan="3"><div class="text-ellipsis">{{trackWorkitemDetails.instructions}}</div></td>
+                  </tr>
+                  <tr>
+                    <th class="text-align-left">Remarks:</th>
+                    <td colspan="3"><div class="text-ellipsis">{{trackWorkitemDetails.wiRemarks}}</div></td>
+                  </tr>
+                  <tr *ngIf="trackWorkitemDetails.actionTaken!='Launch'" class="even">
+                    <th  class="text-align-left">Action Taken:</th>
+                     <td colspan="3"><div class="text-ellipsis">{{trackWorkitemDetails.actionTaken}}</div></td>
+                  </tr>
+                  <tr>
+                    <th class="text-align-left">Keywords:</th>
+                     <td colspan="3"><div class="text-ellipsis">{{trackWorkitemDetails.Keywords}}</div></td>
+                  </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </ng-template>
+        </p-dataTable>
+      </div>
+    </p-accordionTab>
+      </div>
+    </div>
+  </p-accordion>
+</div>
+
+<p-confirmDialog></p-confirmDialog>
+
+<p-dialog appendTo="body" [(visible)]="displayinfo" modal="modal" showEffect="fade" height="500"
+          (onHide)="closeModal()">
+  <p-header>
+    {{viewDocTitle}}
+  </p-header>
+  <app-doc-details-modal [docInfo]="docInfo" [docSysProp]="docSysProp" [docVersion]="docVersion"
+                         [docSecurity]="docSecurity"
+                         [linkedDocuments]="linkedDocuments" [docHistory]="docHistory" [foldersFiledIn]="foldersFiledIn"
+                         [docTitle]="viewDocTitle"
+                         [noLink]="noLink" [docTrack]="docTrack">
+  </app-doc-details-modal>
+  <div class="progress-bar">
+    <div [ngBusy]="{busy: busyModel, message: 'Loading...', backdrop: true}"></div>
+  </div>
+</p-dialog>
+<p-dialog appendTo="body" [(visible)]="editAttachment" modal="modal" showEffect="fade" [width]="800"
+          (onHide)="closeEditAttModal()">
+  <p-header>
+    Edit Attachment
+  </p-header>
+
+  <form [formGroup]="docEditPropForm" class="tabled-form">
+    <div class="ui-g-6 ui-md-7 ui-sm-12 p-0 fix-h-400">
+      <div class="scrollable">
+        <table class="w-100">
+          <tbody>
+          <tr>
+            <td>
+              <label>Properties:</label>
+            </td>
+          </tr>
+          <tr *ngFor="let info of docTemplateDetails.props;let index=i;">
+            <ng-container *ngIf="info.hidden === 'false' || info.hidden === 'FALSE'">
+              <td>
+                <label>{{info.desc}}:<b *ngIf="info.req === 'true' || info.symName==='DocumentTitle'" style="color:red">*</b></label>
+              </td>
+              <td class="input">
+                <input *ngIf="!info.lookups && info.dtype=='STRING' && info.symName!='ECMNo'" [formControlName]="info.symName"
+                           class="form-control" type="text" name="{{info.symName}}" pInputText>
+                    <input disabled *ngIf="!info.lookups && info.dtype=='STRING' && info.symName==='ECMNo'" [formControlName]="info.symName"
+                           class="form-control" type="text" name="{{info.symName}}"  pInputText>
+                    <p-calendar id="calendar" *ngIf="!info.lookups && info.dtype=='DATE'" [showIcon]="true"
+                                [formControlName]="info.symName" class="form-control" dateFormat="dd/mm/yy"
+                                readonlyInput="true" [appendTo]="'body'"
+                                [monthNavigator]="true" [yearNavigator]="true" yearRange="1900:2030"></p-calendar>
+                    <input *ngIf="!info.lookups && info.dtype=='LONG'" [formControlName]="info.symName"
+                           class="form-control" type="number" name="{{info.symName}}" pInputText>
+                    <p-dropdown *ngIf="info.lookups" [options]="info.lookups" placeholder="Select" [filter]="true"
+                                filterBy="label,value.name" [formControlName]="info.symName" class="form-control"
+                                [style]="{'width':'100%'}" [appendTo]="'body'"></p-dropdown>
+              </td>
+            </ng-container>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="ui-g-6 ui-md-5 ui-fluid ui-sm-12 p-0">
+      <table class="pull-right">
+        <tbody>
+        <tr>
+          <td>
+            <label>Select File:</label>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <p-fileUpload name="demo[]" (onSelect)="onUpload($event)"
+                          invalidFileTypeMessageDetail="Please select a file with valid format" invalidFileTypeMessageSummary="File Format Not Accepted,"
+                          chooseLabel="Browse"
+                          accept="application/zip,application/x-zip,application/x-zip-compressed,.csv,text/plain,image/*,.pdf,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,
+                            ,application/msword, application/vnd.ms-powerpoint,.xlsx,.xls,.doc,.docx,.ppt, .pptx,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                          [showCancelButton]="false" [showUploadButton]="false">
+              <ng-template pTemplate="content">
+                <p class="fileDrop">Drop Files Here</p>
+              </ng-template>
+              <ng-template let-file pTemplate="file">
+                <div *ngIf="fileUploaded">{{file.name}}
+                  <span style="display: inline-table">
+                                        <button pButton type="button" icon="ui-icon-close" title="Remove"
+                                                (click)="removeSelectedFile()" class="remove-btn v-m w-30"></button>
+                                    </span>
+                </div>
+              </ng-template>
+            </p-fileUpload>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </form>
+  <p-footer>
+    <div class="progress-bar">
+     <div [ngBusy]="{busy: busyModel, message: 'Loading...', backdrop: true}"></div>
+    </div>
+    <button pButton class="pull-right" type="button" label="Save" [disabled]="!(docEditPropForm.valid && (docEditPropForm.dirty || fileselected))"
+            (click)="fileselected ? updatedAttachment(): updateEdits()"></button>
+    <button pButton class="pull-right" type="submit" label="Cancel" (click)="cancel()"></button>
+  </p-footer>
+</p-dialog>
+
+
+<p-dialog styleClass="without-footer" appendTo="body" [(visible)]="AddUserDialog" modal="modal" showEffect="fade"
+          (onHide)="closeAddUserModel()">
+  <p-header>
+    Add User
+  </p-header>
+    <app-recipients (prepareStepItems)="prepareStepItems()" [documentsData]="addUser.documents"
+                  [recipientsData]="addUser.recipients"></app-recipients>
+  <p-footer>
+    <button pButton label="Cancel" (click)="cancelAddUserModel()"></button>
+    <button class="pull-right" pButton
+            [disabled]="!(addUser.recipients.toList.length > 0 || addUser.recipients.ccList.length > 0)" label="Save"
+            (click)="adduserWorkitem()">
+    </button>
+  </p-footer>
+</p-dialog>
+
+<!--<p-dialog appendTo="body" modal="modal" showEffect="fade" [resizable]="false" [(visible)]="editProperties" [minHeight]="500" [minWidth]="500">-->
+  <!--<p-header>-->
+    <!--Edit Properties-->
+  <!--</p-header>-->
+  <!--<div class="fix-h-350">-->
+    <!--<div class="scrollable">-->
+      <!--<form [formGroup]="docEditPropForm" *ngIf="entryTemp">-->
+        <!--<div *ngFor="let info of docTemplateDetails.props;let index=i;" [ngClass]="{'hide':info.hidden=='true'}">-->
+          <!--<div class="ui-g">-->
+            <!--<div class="ui-g-12 ui-md-4">{{info.desc}}</div>-->
+            <!--<div class="ui-g-12 ui-md-8">-->
+              <!--<input *ngIf="info.dtype=='STRING' && !info.lookups" [formControlName]="info.symName"-->
+                     <!--class="form-control"-->
+                     <!--type="text" pInputText>-->
+              <!--<p-calendar *ngIf="!info.lookups && info.dtype=='DATE'" [showIcon]="true"-->
+                          <!--[formControlName]="info.symName"-->
+                          <!--class="form-control" dateFormat="dd/mm/yy" [appendTo]="'body'"></p-calendar>-->
+              <!--<input *ngIf="!info.lookups && info.dtype=='LONG'" [formControlName]="info.symName" class="form-control"-->
+                     <!--type="number" pInputText>-->
+              <!--<p-dropdown *ngIf="info.lookups" [options]="info.lookups" [formControlName]="info.symName"-->
+                          <!--class="form-control" [autoWidth]="false" [appendTo]="'body'"></p-dropdown>-->
+            <!--</div>-->
+          <!--</div>-->
+        <!--</div>-->
+      <!--</form>-->
+    <!--</div>-->
+  <!--</div>-->
+  <!--<div class="progress-bar">-->
+    <!--<div [ngBusy]="{busy: busyModel, message: 'Loading...', backdrop: true}"></div>-->
+  <!--</div>-->
+  <!--<p-footer>-->
+    <!--<button type="button" class="pull-right" pButton (click)="updateEdits()" label="Save"-->
+            <!--[disabled]="!docEditPropForm.dirty"></button>-->
+    <!--<button type="button" pButton (click)="editProperties=false;" label="Cancel"></button>-->
+  <!--</p-footer>-->
+<!--</p-dialog>-->
+
+<p-dialog styleClass="p-0" [styleClass]="'max-h-488'" appendTo="body" modal="modal" showEffect="fade" [(visible)]="displayProgress"
+              [height]="550" [width]="650" [contentStyle]="{'overflow':'auto'}">
+  <p-header>
+    <span>Work Progress</span>
+    <!--<span><button pButton type="button" icon="ui-icon-refresh" class="remove-btn v-m m-l-sm" (click)="getWorkitemProgress($event)"></button></span>-->
+  </p-header>
+  <app-document-status [workitemProgress]="workitemProgress" (onRemoveProgress)="removeWorkitemProgress($event)"
+                       [showAddBtn]="fromPage[0]==='inbox'"  (onAddProgress)="addWorkitemProgress($event)">
+  </app-document-status>
+  <div class="progress-bar">
+    <div [ngBusy]="{busy: busyModel, message: 'Loading...', backdrop: true}"></div>
+  </div>
+</p-dialog>
+
+<p-dialog modal="modal" showEffect="fade" [(visible)]="eSignDialog" [height]="120" [width]="250" (onHide)="canceleSign()">
+  <p-header>
+    <span>{{workitem.actions === 'Signature' ? 'eSign' : 'Initial'}} In-Progress</span>
+  </p-header>
+  <p-footer>
+    <button type="button" class="pull-right" pButton (click)="canceleSign()" label="Cancel"></button>
+  </p-footer>
+</p-dialog>
+
+<p-dialog modal="modal" showEffect="fade" [(visible)]="showDelegationInactiveDialog" [height]="120" [width]="380" (onHide)="reloadApp()">
+  <p-header>
+       Delegated user Access has been ended.
+  </p-header>
+  <p-footer>
+     <button pButton class="pull-right" type="button" label="Ok" (click)="reloadApp()"></button>
+  </p-footer>
+</p-dialog>
+<p-dialog modal="modal" showEffect="fade" [(visible)]="showRecallInactiveDialog" [height]="120" [width]="380" (onHide)="reloadApp()">
+  <p-header>
+       Workitem has been Recalled
+  </p-header>
+  <p-footer>
+     <button pButton class="pull-right" type="button" label="Ok" (click)="reloadApp()"></button>
+  </p-footer>
+</p-dialog>
+

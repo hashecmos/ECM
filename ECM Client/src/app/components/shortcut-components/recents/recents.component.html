@@ -1,0 +1,13 @@
+ <button pButton type="button" label="Export" (click)="exportToExcel();"
+            class="pull-right m-b-sm" [disabled]="!recDocuments || recDocuments.length==0"></button>
+<div *ngIf="recDocuments">
+ <data-table [showCount]="true" [totalCount]="recDocuments.length" (sendData)="getData($event,sidemenu)" [emptyMessage]="emptyMessage" (refreshScreen)="refreshTable($event);"
+            [tableData]="recDocuments" [showDownloadIcon]="false" [showAddCartIcon]="false" [showInfoIcon]="true" [totalRecords]="recDocuments?recDocuments.length:0"
+             [colHeaders]="colHeaders" [itemsPerPage]="itemsPerPage" [rowExpandable]="false"></data-table></div>
+<div [ngClass]="{'hidden':!selectedItem || selectedItem.length===0}">
+  <aside-menu #sidemenu side="right" width="300px" isBackdrop="false" sideMode="push">
+    <app-rightpanel (sendUpdate)="getRecUpdated($event);" (sendFolders)="getBrowseUpdated($event);" (sendMoveToFolder)="getMoveToFolder($event)" [currentScreen]="screen" (refreshScreen)="refresh($event);"
+                    (togglePanel)="toggle()"></app-rightpanel>
+  </aside-menu>
+</div>
+

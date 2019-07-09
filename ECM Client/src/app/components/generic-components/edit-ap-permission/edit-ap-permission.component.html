@@ -1,0 +1,97 @@
+<div *ngIf="selectedPolicy && selectedPolicy.permissions">
+  <p-dataTable [value]="selectedPolicy.permissions" [rowStyleClass]="rowStyleMapFn">
+    <p-column field="granteeName" header="User/Group Name">
+      <ng-template let-col let-permission="rowData" let-ri="rowIndex" pTemplate="body">
+        <span>{{permission[col.field]}}</span>
+      </ng-template>
+    </p-column>
+    <p-column field="granteeType" header="Type">
+      <ng-template let-col let-permission="rowData" let-ri="rowIndex" pTemplate="body">
+        <span>{{permission[col.field]}}</span>
+      </ng-template>
+    </p-column>
+    <p-column field="accessType" header="Access Type">
+      <ng-template let-col let-permission="rowData" let-ri="rowIndex" pTemplate="body">
+        <p-dropdown [options]="accessType" [(ngModel)]="permission.accessType" [autoWidth]="false"
+                    name="permissionAccessType{{ri}}" appendTo="body"
+                    (onChange)="accessTypeChanged(permission)"></p-dropdown>
+      </ng-template>
+    </p-column>
+    <p-column field="accessLevel" header="Access Level">
+      <ng-template let-col let-permission="rowData" let-ri="rowIndex" pTemplate="body">
+        <p-dropdown [options]="accessLevels" [(ngModel)]="permission.accessLevel" [autoWidth]="false"
+                    name="permissionAccessLevels{{ri}}" appendTo="body"
+                    (onChange)="permissionChanged(permission)"></p-dropdown>
+      </ng-template>
+    </p-column>
+    <p-column header="Action" styleClass="text-align-center">
+      <ng-template let-col let-permission="rowData" let-ri="rowIndex" pTemplate="body">
+                <span>
+                <button pButton type="button" icon="ui-icon-remove" title="Remove Permission"
+                        (click)="removePermission(permission)"
+                        class="remove-btn v-m" *ngIf="permission.action!=='REMOVE'"></button>
+                <button pButton type="button" *ngIf="permission.action==='REMOVE'" icon="ui-icon-add"
+                        title="Remove Permission"
+                        (click)="addPermission(permission)"
+                        class="remove-btn v-m"></button>
+                </span>
+      </ng-template>
+    </p-column>
+
+  </p-dataTable>
+</div>
+
+<div class="ui-g p-l-0 p-r-0 ">
+  <div class="ui-g-12 p-l-0 p-b-xs" *ngIf="newPermissions && newPermissions.length>0">
+    <label class="text-bold">New Permission</label>
+  </div>
+  <div class="ui-g-12 p-l-0 p-r-0 p-t-0" *ngIf="newPermissions && newPermissions.length>0">
+
+    <p-dataTable [value]="newPermissions">
+      <p-column header="Search User/Group Name">
+        <ng-template let-col let-newPermission="rowData" let-ri="rowIndex" pTemplate="body">
+          <div class="ui-g">
+            <div class="ui-g-12 p-0">
+              <div class="ui-g-10 p-l-0 p-t-0 p-b-0">
+                <p-autoComplete [(ngModel)]="newPermission.granteeName"
+                                [suggestions]="newPermission.granteesSuggestion"
+                                (completeMethod)="getGranteesSuggestion($event,newPermission)" field="name"
+                                [size]="30" placeholder="Search Grantee" [minLength]="1" appendTo="body"
+                                [forceSelection]="true"></p-autoComplete>
+              </div>
+              <div class="ui-g-2 p-0">
+                <p-dropdown [options]="granteeTypes" [(ngModel)]="newPermission.granteeType" [autoWidth]="false"
+                            name="granteeType{{ri}}" appendTo="body"
+                            (onChange)="onGranteeTypeChange(newPermission)"></p-dropdown>
+              </div>
+            </div>
+          </div>
+
+        </ng-template>
+      </p-column>
+      <p-column header="Access Type">
+        <ng-template let-col let-newPermission="rowData" let-ri="rowIndex" pTemplate="body">
+          <p-dropdown [options]="accessType" [(ngModel)]="newPermission.accessType" [autoWidth]="false"
+                      name="accessType{{ri}}" appendTo="body"></p-dropdown>
+        </ng-template>
+      </p-column>
+      <p-column header="Access Level">
+        <ng-template let-col let-newPermission="rowData" let-ri="rowIndex" pTemplate="body">
+          <p-dropdown [options]="accessLevels" [(ngModel)]="newPermission.accessLevel" [autoWidth]="false"
+                      name="accessLevels{{ri}}" appendTo="body"></p-dropdown>
+        </ng-template>
+      </p-column>
+      <p-column header="Action" styleClass="text-align-center">
+        <ng-template let-col let-newPermission="rowData" let-ri="rowIndex" pTemplate="body">
+          <span>
+            <button pButton type="button" icon="ui-icon-remove" title="Edit"
+                    (click)="removeNewPermission(newPermission)" class="remove-btn v-m"></button>
+          </span>
+        </ng-template>
+      </p-column>
+    </p-dataTable>
+  </div>
+  <div class="ui-g-12 p-l-0 p-r-0">
+    <button type="button" pButton (click)="addNewPermission()" label="Add More"></button>
+  </div>
+</div>

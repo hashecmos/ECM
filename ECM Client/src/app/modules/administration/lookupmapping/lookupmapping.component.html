@@ -1,0 +1,160 @@
+<div class="h-100">
+  <div class="ui-g">
+    <div class="ui-g-12 ui-md-12 p-0 p-b-md">
+      <button pButton type="button" label="New Lookup Mapping" (click)="newLookupMapping();lookupMap.reset();"></button>
+      <button pButton type="button" label="Export" (click)="exportToExcel();"
+              class="pull-right" [disabled]="!lookupMappingList"></button>
+    </div>
+    <form #searchLookupForm="ngForm">
+      <div class="ui-g-12 ui-md-12 p-0 p-b-md" style="display:  inline-flex">
+        <div>
+          <div class="m-l-lg">
+            <div class="ui-inputgroup">
+                  <span class="md-inputfield ">
+                    <p-autoComplete id="orgUnitId" [suggestions]="suggestionsResultsOrg"
+                                    (completeMethod)="searchOrg($event)" field="desc" name="orgName"
+                                    (onSelect)="orgUnitSelectedForSearch($event);" [size]="30"
+                                    placeholder="Search Org Code" [ngModel]="orgName"
+                                    [minLength]="1" [appendTo]="'body'" [required]="true">
+                      <ng-template let-selectedorgCode pTemplate="item">
+                        <div class="ui-helper-clearfix">
+                          <span class="pull-left">{{selectedorgCode.desc}}</span>
+                          <span class="pull-right font-light">{{selectedorgCode.orgCode}}</span>
+                        </div>
+                      </ng-template>
+                    </p-autoComplete>
+                     <button pButton type="button" icon="ui-icon-clear" title="Clear"
+                             (click)="confirmClear();searchLookupForm.reset();"
+                             class="remove-btn v-m"></button>
+                  </span>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="m-l-lg">
+
+            <p-dropdown [options]="etList" [(ngModel)]="selectedTemplate" name="etname"
+                        placeholder="Select Entry Template"
+                        [appendTo]="'body'" [required]="true">
+            </p-dropdown>
+
+          </div>
+        </div>
+        <div class="m-l-lg">
+          <button [disabled]="!selectedTemplate || !selectedOrgCode" pButton type="button" label="Search"
+                  (click)="searchLookupMapping()"></button>
+        </div>
+      </div>
+    </form>
+    <div class="ui-g-12 p-0 fix-h-500">
+      <div class="ui-widget-header" style="padding:2px 10px;border-bottom: 0 none">
+        <!-- global filter -->
+        <div class="ui-g">
+          <div class="ui-g-12 p-0">
+            <table>
+              <tr>
+                <td><i class="fa fa-search v-m m-r-md"></i></td>
+                <td>
+                  <input #gb type="text" pInputText size="50" placeholder="Filter Text" style="color: #ffffff"
+                         class="v-m p-0">
+                </td>
+              </tr>
+            </table>
+          </div>
+        </div>
+      </div>
+      <p-dataTable [resizableColumns]="true" [reorderableColumns]="true" [value]="lookupMappingList" styleClass="scrollable" [rows]="itemsPerPage"
+                   [paginator]="true"
+                   [responsive]="true" [globalFilter]="gb">
+        <p-column *ngFor="let col of colHeaders" [hidden]="col.hidden" [field]="col.field" [header]="col.header"
+                  [sortable]="true"></p-column>
+        <p-column styleClass="col-button">
+          <ng-template pTemplate="header">
+            <button pButton type="button" icon="ui-icon-autorenew" title="Refresh" (click)="refresh()"
+                    class="remove-btn"></button>
+          </ng-template>
+          <ng-template let-r="rowData" pTemplate="body">
+            <button pButton type="button" icon="ui-icon-edit" title="Edit" (click)="modifyLookupMapping(r)"
+                    class="remove-btn v-m"></button>
+            <button pButton type="button" icon="ui-icon-delete" title="Delete" (click)="confirmdeleteLookupMapping(r)"
+                    class="remove-btn v-m"></button>
+          </ng-template>
+        </p-column>
+      </p-dataTable>
+    </div>
+  </div>
+</div>
+<p-confirmDialog></p-confirmDialog>
+<p-dialog modal="modal" showEffect="fade" [(visible)]="showNewLookupMapping" [minWidth]="600" [height]="520"
+          (onHide)="closeModel();lookupMap.reset();">
+  <p-header *ngIf="!editMode">
+    New Lookup Mapping
+  </p-header>
+  <p-header *ngIf="editMode">
+    Edit Lookup Mapping
+  </p-header>
+  <div class="ui-g-12 ui-md-1"></div>
+  <div class="ui-g-12 ui-md-11 min-height-400">
+    <form (ngSubmit)="addNewLookupMapping()" #lookupMap="ngForm">
+      <div class="ui-g form-group">
+        <div class="ui-g-12 ui-md-4">
+          <label for="orgUnit">Organization Unit:<b style="color:red">*</b></label>
+        </div>
+        <div class="ui-g-12 ui-md-7">
+          <p-autoComplete id="orgUnit" [disabled]="editMode" [(ngModel)]="lookupMapping.orgUnit"
+                          [suggestions]="suggestionsResults"
+                          (completeMethod)="search($event)" field="label" name="orgUnit"
+                          (onSelect)="orgUnitSelected($event)" [size]="30"
+                          placeholder="Search Organization Unit" [minLength]="1" [appendTo]="'body'"
+                          [required]="true"></p-autoComplete>
+        </div>
+      </div>
+      <div class="ui-g form-group">
+        <div class="ui-g-12 ui-md-4">
+          <label for="entryTemp">Entry Template:<b style="color:red">*</b></label>
+        </div>
+        <div *ngIf="!editMode" class="ui-g-12 ui-md-7">
+          <p-dropdown id="entryTemp" name="entryTemp" [placeholder]="'Select'" [disabled]="!orgSelected || editMode"
+                      [options]="entryTemplates" [(ngModel)]="lookupMapping.entryTemp"
+                      (onChange)="changeTemplateSelection($event)"
+                      [autoWidth]="false" autoDisplayFirst="false" [required]="true" [filter]="true"></p-dropdown>
+        </div>
+        <div *ngIf="editMode" class="ui-g-12 ui-md-7">
+          <input pInputText type="text" name="entryTempName" [disabled]="true" [(ngModel)]="lookupMapping.entryTemp.id">
+        </div>
+      </div>
+      <div class="ui-g form-group">
+        <div class="ui-g-12 ui-md-4">
+          <label for="prop">FileNet Property:<b style="color:red">*</b></label>
+        </div>
+        <div class="ui-g-12 ui-md-7">
+          <p-dropdown id="prop" name="prop" [placeholder]="'Select'" [disabled]="!lookupMapping.entryTemp || editMode"
+                      [options]="properties" [(ngModel)]="lookupMapping.prop" [autoWidth]="false"
+                      autoDisplayFirst="false" [required]="true" [filter]="true"></p-dropdown>
+        </div>
+      </div>
+      <div class="ui-g form-group">
+        <div class="ui-g-12 ui-md-4">
+          <label for="lookup">Lookup:<b style="color:red">*</b></label>
+        </div>
+        <div class="ui-g-12 ui-md-7">
+          <p-dropdown id="lookup" name="lookup" [placeholder]="'Select'"
+                      [disabled]="lookupMapping.entryTemp? false:true" [options]="lookups"
+                      [(ngModel)]="lookupMapping.lookup" [autoWidth]="false"
+                      autoDisplayFirst="false" [required]="true" [filter]="true"></p-dropdown>
+        </div>
+      </div>
+    </form>
+  </div>
+  <div class="progress-bar">
+    <div [ngBusy]="{busy: busyModal, message: '', backdrop: true}"></div>
+  </div>
+  <p-footer>
+    <button *ngIf="!editMode" pButton class="pull-right" type="submit" label="Submit" [disabled]="!lookupMap.form.valid"
+            (click)="addNewLookupMapping()"></button>
+    <button *ngIf="editMode" pButton class="pull-right" type="submit" label="Save" [disabled]="!lookupMap.form.dirty"
+            (click)="addNewLookupMapping()"></button>
+    <button pButton class="pull-right" type="button" label="Cancel" (click)="showNewLookupMapping=false;"></button>
+  </p-footer>
+</p-dialog>
+

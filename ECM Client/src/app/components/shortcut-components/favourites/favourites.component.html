@@ -1,0 +1,13 @@
+<button pButton type="button" label="Export" (click)="exportToExcel();"
+            class="pull-right m-b-sm" [disabled]="!favDocuments || favDocuments.length==0"></button>
+<div *ngIf="favDocuments">
+<data-table [showCount]="true" [totalCount]="favDocuments.length"  (sendData)="getData($event,sidemenu);" [emptyMessage]="emptyMessage" (refreshScreen)="refreshTable($event);"
+            [tableData]="favDocuments" [colHeaders]="colHeaders" [showDownloadIcon]="false" [showAddCartIcon]="false"
+            [showInfoIcon]="true" [itemsPerPage]="itemsPerPage" [rowExpandable]="false" [totalRecords]="favDocuments?favDocuments.length:0"></data-table></div>
+<div [ngClass]="{'hidden':!selectedItem || selectedItem.length===0}">
+  <aside-menu #sidemenu side="right" width="300px" isBackdrop="false" sideMode="push">
+    <app-rightpanel (sendUpdate)="getFavUpdated($event);" (sendFolders)="getBrowseUpdated($event);" (sendMoveToFolder)="getMoveToFolder($event)" [currentScreen]="screen" (refreshScreen)="refresh($event);"
+                    (togglePanel)="toggle()"></app-rightpanel>
+  </aside-menu>
+</div>
+

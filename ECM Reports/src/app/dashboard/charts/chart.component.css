@@ -1,0 +1,28 @@
+table {
+	width : 100%;
+}
+tr{
+	width : 100%;
+	padding : 5px;
+}
+td{
+	padding : 5px;	
+}
+
+.report_export{
+	background : #00518d;
+	color : #ffffff;
+	padding : 4px;
+	border-radius : 4px;
+	cursor: pointer;
+}
+
+.viewReport{
+	background : #00518d;
+	color : #ffffff;
+	padding : 4px;
+	border-radius : 4px;
+	cursor: pointer;
+}
+
+

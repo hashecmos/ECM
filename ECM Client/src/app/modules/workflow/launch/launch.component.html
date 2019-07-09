@@ -1,0 +1,460 @@
+<div class="ui-md-12 ui-g-12 p-0">
+  <div class="ui-g-11 ui-md-11 ui-sm-12 p-l-0 p-t-0 p-b-xs">
+    <p-steps [model]="items" [readonly]="false" [(activeIndex)]="activeIndex"></p-steps>
+  </div>
+  <div class="ui-g-1 ui-md-1 ui-sm-1" [ngClass]="{'hide':actionTypes==='launch' && !isRelaunch}">
+    <button pButton type="button" icon="ui-icon-arrow-back" title="Back" (click)="goBack()" class="remove-btn pull-right"></button>
+  </div>
+</div>
+<div *ngIf="activeIndex==0">
+  <div style="width:100%">
+    <div *ngIf="actionTypes==='launch' || 'browseLaunch'" class="ui-g-12 p-0">
+      <p-selectButton (onChange)="onActionTypeChanged($event)" [options]="launch.documents.existing.actionTypes"
+                      [(ngModel)]="launch.documents.existing.model.actionType" name="actionType"></p-selectButton>
+    </div>
+    <div class="ui-g-12 p-l-0 p-b-0 p-t-md p-r-0">
+      <p-tabView>
+        <p-tabPanel header="Existing">
+          <p-accordion [multiple]="true" [(activeIndex)]="launch.documents.existing.activeAccordionIndices"
+                       (onOpen)="onAccordionTabOpen($event)" (onClose)="onAccordionTabClose($event)">
+            <div class="ui-g">
+              <div class="ui-g-12 p-t-0 p-b-0">
+                <div class="ui-g-8 ui-sm-12 p-l-0 p-r-sm">
+                  <p-accordionTab header="Search Document" [selected]="true">
+                    <div>
+                      <app-search-document (onSearchComplete)="onDocumentSearchCommplete()"
+                                           [data]="launch.documents.existing"
+                                           [isSimpleSearch]="false"></app-search-document>
+                    </div>
+                    <span class="white-text">a</span>
+                  </p-accordionTab>
+
+                </div>
+
+                <div class="ui-g-4 ui-sm-12 document-cart p-r-0 max-h-400">
+
+                  <p-accordionTab [selected]="true">
+                    <p-header>
+                      <div class="ui-g">
+                        <div class="ui-g-2 ui-sm-12 p-v-0"><i class="fa ui-icon-shopping-cart v-m"></i></div>
+                        <div class="ui-g-10 ui-sm-12 p-v-0"><span class="v-m" *ngIf="launch.documents.cartItems">Document Cart ({{launch.documents.cartItems.length}})</span>
+                        </div>
+                      </div>
+                    </p-header>
+                    <app-document-cart [showHeading]="false" [cartItems]="launch.documents.cartItems"
+                                       (onItemSelect)="populateWorkflowForm($event)"
+                                       (onItemRemoved)="onDocumentRemoved()"></app-document-cart>
+                  </p-accordionTab>
+                </div>
+
+              </div>
+              <div class="ui-g-12 p-t-0">
+                <p-accordionTab class="w-100">
+                  <p-header>
+                    <span *ngIf="!launch.documents.existing.searchResult">Search Result</span>
+                    <span *ngIf="launch.documents.existing.searchResult">
+                                 Total {{launch.documents.existing.searchResult.length}} Records Found
+                               </span>
+                  </p-header>
+                  <div class="ui-g">
+                    <div class="ui-g-12" *ngIf="launch.documents.existing.searchResult">
+                      <data-table [tableData]="launch.documents.existing.searchResult" [colHeaders]="colHeaders"
+                                  [showInfoIcon]="true" [showAddCartIcon]="true" [showCheckBox]="false"
+                                  [showDownloadIcon]="false" [itemsPerPage]="itemsPerPage" [rowExpandable]="false"
+                                  (addToCart)="addToCart($event)" (download)="downloadDoc($event)"></data-table>
+
+
+                    </div>
+                  </div>
+                </p-accordionTab>
+              </div>
+
+
+            </div>
+          </p-accordion>
+        </p-tabPanel>
+        <p-tabPanel header="New">
+          <div class="ui-g">
+            <div class="ui-g-12">
+              <div class="ui-g-8 ui-sm-12">
+                <app-add-document (onAddSuccess)="onDocumentAdded($event)" [screen]="'Launch'"></app-add-document>
+              </div>
+              <div class="ui-g-4 ui-sm-12 document-cart max-h-400">
+                <p-accordion>
+                  <p-accordionTab [selected]="true">
+                    <p-header>
+                      <div class="ui-g">
+                        <div class="ui-g-2 ui-sm-12 p-v-0"><i class="fa ui-icon-shopping-cart v-m"></i></div>
+                        <div class="ui-g-10 ui-sm-12 p-v-0"><span class="v-m" *ngIf="launch.documents.cartItems">Document Cart ({{launch.documents.cartItems.length}})</span>
+                        </div>
+                      </div>
+                    </p-header>
+                    <app-document-cart [showHeading]="false" (onItemRemoved)="onDocumentRemoved()"
+                                       (onItemSelect)="populateWorkflowForm($event)"
+                                       [cartItems]="launch.documents.cartItems"></app-document-cart>
+                    <span>&nbsp;</span>
+                  </p-accordionTab>
+
+                </p-accordion>
+
+              </div>
+            </div>
+          </div>
+        </p-tabPanel>
+      </p-tabView>
+    </div>
+  </div>
+  <div>
+    <div class="ui-g-12 text-align-right">
+      <button (click)="goToNextStep(1)" pButton type="button" label="Next" style="margin-bottom:10px;width:auto" *ngIf="launch.documents.cartItems"
+              [disabled]="(actionTypes==='draftLaunch'  &&  launch.documents.existing.model.actionType === 'bulkLaunch' && !isRelaunch
+              && (this.launch.documents.cartItems.length + launch.workflow.model.attachments.length)<=1)
+              || (actionTypes!=='draftLaunch' &&  launch.documents.existing.model.actionType !== 'bulkLaunch' &&
+              launch.documents.cartItems.length==0 && !isRelaunch) || (actionTypes!=='draftLaunch' &&
+              launch.documents.existing.model.actionType === 'bulkLaunch' && launch.documents.cartItems.length<=1 && !isRelaunch)">
+      </button>
+    </div>
+
+  </div>
+
+</div>
+<div id="step02" class="h-100" *ngIf="activeIndex==1">
+  <app-recipients (prepareStepItems)="prepareStepItems()" [documentsData]="launch.documents" [actionType]="emitActionType"
+                  [recipientsData]="launch.recipients"></app-recipients>
+  <div>
+    <div class="ui-g-12 ">
+      <div class="ui-g-2">
+        <button (click)="goToNextStep(0)" pButton type="button" label="Previous"></button>
+      </div>
+      <div class="ui-g-10">
+        <button (click)="goToNextStep(2)" class="pull-right" pButton type="button" label="Next"
+                style="margin-bottom:10px;width:auto"
+                [disabled]="launch.recipients.toList.length==0 && launch.recipients.ccList.length==0"></button>
+      </div>
+    </div>
+
+  </div>
+</div>
+<div id="step03" *ngIf="activeIndex==2">
+  <div class="w-100">
+    <div class="ui-g-8 ui-sm-12">
+      <form>
+
+        <div class="ui-g form-group">
+          <div class="ui-g-12 ui-md-3">
+            <label>Subject:<span class="required">*</span></label>
+          </div>
+
+          <div class="ui-g-12 ui-md-6">
+                    <span class="md-inputfield">
+                        <input [disabled]="subjectDisabled" type="text"  maxlength="2000" pInputText name="workflowSubject"
+                               [(ngModel)]="launch.workflow.model.subject" required>
+                    </span>
+          </div>
+        </div>
+
+        <div class="ui-g form-group">
+          <div class="ui-g-12 ui-md-3">
+            <label>For:</label>
+            <!--<span *ngIf="actionTypes==='launch'|| actionTypes==='browseLaunch' || actionTypes==='draftLaunch'" class="required">*</span>-->
+            <span class="required">*</span>
+          </div>
+          <div class="ui-g-12 ui-md-6 ui-fluid">
+            <p-multiSelect [options]="launch.workflow.forOptions" [defaultLabel]="'Select'"
+                           [displaySelectedLabel]="true" [(ngModel)]="launch.workflow.model.actions"
+                           name="workflowFor"></p-multiSelect>
+          </div>
+        </div>
+
+        <div class="ui-g form-group">
+          <div class="ui-g-12 ui-md-3">
+            <label>Priority:</label>
+          </div>
+          <div class="ui-g-12 ui-md-6">
+            <p-dropdown [options]="launch.workflow.priorityOptions" [(ngModel)]="launch.workflow.model.priority"
+                        [autoWidth]="false"
+                        name="workflowPriority"></p-dropdown>
+          </div>
+        </div>
+
+        <div class="ui-g form-group">
+          <div class="ui-g-12 ui-md-3">
+            <label>Remarks:</label>
+          </div>
+          <div class="ui-g-12 ui-md-6">
+                    <textarea  class="text-area-resize-none bordered" [rows]="7" maxlength="2000" [cols]="30" pInputTextarea [autoResize]="false"
+                              [(ngModel)]="launch.workflow.model.remarks" name="remarks"></textarea>
+            <span *ngIf="!launch.workflow.model.remarks">2000 Remaining</span>
+            <span *ngIf="launch.workflow.model.remarks">{{2000-launch.workflow.model.remarks.length}} Remaining</span>
+          </div>
+        </div>
+
+        <div class="ui-g form-group">
+          <div class="ui-g-12 ui-md-3">
+            <label>Instructions:</label>
+          </div>
+          <div class="ui-g-12 ui-md-6">
+            <textarea  class="text-area-resize-none bordered" [rows]="3" maxlength="500" [cols]="30" pInputTextarea [autoResize]="false"
+                              [(ngModel)]="launch.workflow.model.instructions" name="instructions"></textarea>
+             <span *ngIf="!launch.workflow.model.instructions">500 Remaining</span>
+            <span *ngIf="launch.workflow.model.instructions">{{500-launch.workflow.model.instructions.length}} Remaining</span>
+
+          </div>
+        </div>
+         <div *ngIf="actionTypes==='forward' || actionTypes==='reply' || actionTypes==='replyAll'" class="ui-g form-group">
+          <div class="ui-g-12 ui-md-3">
+            <label>Action Taken:</label>
+          </div>
+          <div class="ui-g-12 ui-md-6">
+            <textarea  class="text-area-resize-none bordered" [rows]="3" maxlength="1000" [cols]="30" pInputTextarea [autoResize]="false"
+                              [(ngModel)]="launch.workflow.model.actionTaken" name="actionTaken"></textarea>
+             <span *ngIf="!launch.workflow.model.actionTaken">1000 Remaining</span>
+            <span *ngIf="launch.workflow.model.actionTaken">{{1000-launch.workflow.model.actionTaken.length}} Remaining</span>
+
+          </div>
+        </div>
+
+        <div   *ngIf="actionTypes !=='forward' && actionTypes !=='reply' && actionTypes !=='replyAll'" class="ui-g form-group">
+          <div class="ui-g-12 ui-md-3">
+            <label>Document From:</label>
+          </div>
+          <div class="ui-g-12 ui-md-6">
+                    <span class="md-inputfield">
+                        <input type="text" pInputText [(ngModel)]="launch.workflow.model.docFrom"  maxlength="250" name="documentFrom">
+                    </span>
+          </div>
+        </div>
+
+        <div  *ngIf="actionTypes !=='forward' && actionTypes !=='reply' && actionTypes !=='replyAll'" class="ui-g form-group">
+          <div class="ui-g-12 ui-md-3">
+            <label>Document To:</label>
+          </div>
+          <div class="ui-g-12 ui-md-6">
+                    <span class="md-inputfield">
+                        <input type="text" pInputText [(ngModel)]="launch.workflow.model.docTo" maxlength="250" name="documentTo">
+                    </span>
+          </div>
+        </div>
+
+
+        <div  *ngIf="actionTypes !=='forward' && actionTypes !=='reply' && actionTypes !=='replyAll'"  class="ui-g form-group">
+          <div class="ui-g-12 ui-md-3">
+            <label>Keywords:</label>
+          </div>
+          <div class="ui-g-12 ui-md-6">
+                    <span class="md-inputfield">
+                        <input type="text" pInputText [(ngModel)]="launch.workflow.model.keywords" maxlength="200" name="keywords">
+                    </span>
+          </div>
+        </div>
+
+        <div class="ui-g form-group">
+          <div class="ui-g-12 ui-md-3">
+            <label>Deadline:</label>
+          </div>
+          <div class="ui-g-12 ui-md-6">
+            <p-calendar hourFormat="12" [minDate]="launch.currentDate" [showTime]="true" [showIcon]="true" (onSelect)="selectDeadLine()"
+                        [(ngModel)]="launch.workflow.model.deadlineDate" name="deadlineDate" dateFormat="dd-mm-yy" [monthNavigator]="true"
+                        [yearNavigator]="true" yearRange="1900:2030"></p-calendar>
+          </div>
+
+        </div>
+
+        <div class="ui-g form-group">
+          <div class="ui-g-12 ui-md-3">
+            <label>Reminder:</label>
+          </div>
+          <div class="ui-g-12 ui-md-6 ">
+            <p-calendar [maxDate]="launch.workflow.model.deadlineDate" [minDate]="launch.currentDate" hourFormat="12"
+                        [showTime]="true" [showIcon]="true" [disabled]="!launch.workflow.model.deadlineDate" dateFormat="dd-mm-yy"
+                        [(ngModel)]="launch.workflow.model.reminderDate" name="reminderDate" [monthNavigator]="true"
+                        [yearNavigator]="true" yearRange="1900:2030"></p-calendar>
+          </div>
+        </div>
+
+
+        <div
+          *ngIf="actionTypes==='forward' || actionTypes==='reply' || actionTypes==='replyAll' || actionTypes==='draftLaunch' || isRelaunch"
+          class="ui-g form-group">
+          <div class="ui-g-12 ui-md-3">
+            <label>Attachments:</label>
+          </div>
+          <div class="ui-g-12 ui-md-6">
+             <ng-template   ngFor let-item [ngForOf]="launch.workflow.model.attachments" let-i="index" >
+               <span role="button" *ngIf="item.format" (click)="viewAttachment(item)">
+                 <span class="v-m"></span>
+                 <img class="img-sm" src="assets/images/icons/file-pdf-o.png" *ngIf="item.format.indexOf('pdf')!==-1">
+                 <img class="img-sm" src="assets/images/icons/file-excel-o.png" *ngIf="item.format.indexOf('sheet')!==-1 || item.format.indexOf('xlsx')!==-1">
+                 <img class="img-sm" src="assets/images/icons/file-image-o.png" *ngIf="item.format.indexOf('image')!==-1">
+                 <img class="img-sm" src="assets/images/icons/file-word-o.png" *ngIf="item.format.indexOf('msword')!==-1">
+                 <img class="img-sm" src="assets/images/icons/file-text-o.png" *ngIf="item.format.indexOf('pdf')===-1 && item.format.indexOf('sheet')===-1
+                       && item.format.indexOf('xlsx')===-1 && item.format.indexOf('image')===-1  && item.format.indexOf('msword')===-1">
+                  {{item.docTitle}}
+              </span>
+              <span role="button" *ngIf="!item.format" (click)="viewAttachment(item)">
+                <span class="v-m"></span>
+                <img class="img-sm" src="assets/images/icons/file-text-o.png" class="icon">
+                {{item.docTitle}}
+              </span>
+              </ng-template>
+            <!--<span class="md-inputfield">-->
+              <!--<p-autoComplete  (onFocus)="viewAttachment($event)" [disabled]="actionTypes==='forward' || actionTypes==='reply' || actionTypes==='replyAll'-->
+                <!--|| !launch.workflow.model.attachments || !launch.documents.cartItems  || (launch.workflow.model.attachments.length==0 &&-->
+                <!--launch.documents.cartItems.length <= 1) || (launch.workflow.model.attachments.length <= 1 && launch.documents.cartItems.length == 0)"-->
+                <!--[(ngModel)]="launch.workflow.model.attachments" [multiple]="true" field="docTitle" name="attList">-->
+                <!--<ng-template let-value pTemplate="selectedItem">-->
+                        <!--<span class="p-r-xlg clickable" (click)="viewAttachment(value)">{{value.docTitle}}</span>-->
+                <!--</ng-template>-->
+              <!--</p-autoComplete>-->
+            <!--</span>-->
+          </div>
+        </div>
+
+
+      </form>
+
+
+    </div>
+    <div class="ui-g-4 ui-sm-12 document-cart max-h-400">
+      <p-accordion>
+        <p-accordionTab [selected]="true">
+          <p-header>
+            <div class="ui-g">
+              <div class="ui-g-2 ui-sm-12 p-v-0"><i class="fa ui-icon-shopping-cart v-m"></i></div>
+              <div class="ui-g-10 ui-sm-12 p-v-0"><span class="v-m" *ngIf="launch.documents.cartItems">Document Cart ({{launch.documents.cartItems.length}})</span>
+              </div>
+            </div>
+          </p-header>
+          <app-document-cart [showHeading]="false" [cartItems]="launch.documents.cartItems"
+                             (onItemSelect)="populateWorkflowForm($event)"
+                             (onItemRemoved)="onDocumentRemoved()" [isItemSelectable]="true" (onItemPreview)="showDocPreview($event)"></app-document-cart>
+        </p-accordionTab>
+      </p-accordion>
+      <!--<div class="m-t-md">-->
+        <!--<iframe *ngIf="showIframe" class="col-sm-12" width="400" height="350" scrolling="yes" [src]="attach_url"-->
+            <!--frameborder="0"></iframe>-->
+        <!--</div>-->
+    </div>
+  </div>
+  <div>
+    <div class="ui-g-12">
+      <div class="ui-g-2 ui-md-2 ui-sm-12">
+        <button (click)="goToNextStep(1)" pButton type="button" label="Previous"></button>
+        <button *ngIf="(actionTypes==='launch' && !isRelaunch) || actionTypes==='browseLaunch' || actionTypes==='draftLaunch'"
+                (click)="launchAsCurrentUser('normal',-1,true)" pButton type="button" label="Save Draft"
+                [disabled]="!launch.workflow.model.subject || launch.documents.existing.model.actionType === 'bulkLaunch' || !launch.workflow.model.actions || launch.workflow.model.actions.length==0" >
+        </button>
+      </div>
+      <div id="launchBtn" class="ui-g-10 ui-md-10 text-align-right">
+        <p-splitButton [styleClass]="'ecm-split-button'"
+                       [disabled]="launch.recipients.toList.length==0  || !launch.documents.cartItems || (launch.documents.cartItems.length==0 && !isRelaunch) ||
+                       !launch.workflow.model.subject || launch.workflow.model.subject.trim().length===0 || !launch.workflow.model.actions || launch.workflow.model.actions.length==0 ||
+                       (launch.documents.existing.model.actionType === 'bulkLaunch' && launch.documents.cartItems.length<=1) ||
+                       (isRelaunch && launch.workflow.model.attachments && launch.workflow.model.attachments.length==0 && launch.documents.cartItems.length==0)"
+                       *ngIf="(actionTypes==='launch' || actionTypes==='browseLaunch') && currentUser.roles && currentUser.roles.length>0"
+                       label="{{launch.documents.existing.model.actionType === 'bulkLaunch' ? 'Bulk Launch': 'Launch'}} (On Behalf Of {{currentUser.roles[0].name}})"
+                       (onClick)="launch.documents.existing.model.actionType === 'bulkLaunch' ? this.launchAsCurrentUser('bulk', currentUser.roles[0], false, '') : launchAsRole(currentUser.roles[0], 'normal')"
+                       [model]="launch.launchBtnItems"></p-splitButton>
+        <p-splitButton [styleClass]="'ecm-split-button'"
+                       [disabled]="launch.recipients.toList.length==0  || !launch.documents.cartItems || (launch.documents.cartItems.length==0 && !isRelaunch) ||
+                       !launch.workflow.model.subject || launch.workflow.model.subject.trim().length===0 || !launch.workflow.model.actions || launch.workflow.model.actions.length==0 ||
+                       (launch.documents.existing.model.actionType === 'bulkLaunch' && launch.documents.cartItems.length<=1) ||
+                       (isRelaunch && launch.workflow.model.attachments && launch.workflow.model.attachments.length==0 && launch.documents.cartItems.length==0)"
+                       *ngIf="(actionTypes==='launch' || actionTypes==='browseLaunch') && (!currentUser.roles || currentUser.roles.length==0) && launch.launchBtnItems.length>0"
+                       label="{{launch.documents.existing.model.actionType === 'bulkLaunch' ? 'Bulk Launch': 'Launch'}}"
+                       (onClick)="launchAsCurrentUser(launch.documents.existing.model.actionType === 'bulkLaunch' ? 'bulk' : 'normal', 0, false, '')"
+                       [model]="launch.launchBtnItems"></p-splitButton>
+        <button pButton type="button"
+                       [disabled]="launch.recipients.toList.length==0  || !launch.documents.cartItems || (launch.documents.cartItems.length==0 && !isRelaunch) ||
+                       !launch.workflow.model.subject || launch.workflow.model.subject.trim().length===0 || !launch.workflow.model.actions || launch.workflow.model.actions.length==0 ||
+                       (launch.documents.existing.model.actionType === 'bulkLaunch' && launch.documents.cartItems.length<=1) ||
+                       (isRelaunch && launch.workflow.model.attachments && launch.workflow.model.attachments.length==0 && launch.documents.cartItems.length==0)"
+                       *ngIf="(actionTypes==='launch' || actionTypes==='browseLaunch') && (!currentUser.roles || currentUser.roles.length==0) && launch.launchBtnItems.length==0"
+                       label="{{launch.documents.existing.model.actionType === 'bulkLaunch' ? 'Bulk Launch': 'Launch'}}"
+                       (click)="launchAsCurrentUser(launch.documents.existing.model.actionType === 'bulkLaunch' ? 'bulk' : 'normal', 0, false, '')"
+                       ></button>
+
+        <!--for draft-->
+        <p-splitButton [styleClass]="'ecm-split-button'"
+                       [disabled]="launch.recipients.toList.length==0  || !launch.workflow.model.attachments || !launch.documents.cartItems  ||
+                        (launch.workflow.model.attachments.length==0 && launch.documents.cartItems.length==0) || !launch.workflow.model.subject ||
+                        launch.workflow.model.subject.trim().length===0 ||
+                        !launch.workflow.model.actions || launch.workflow.model.actions.length==0 || (launch.documents.existing.model.actionType === 'bulkLaunch' &&
+                        (launch.documents.cartItems.length + launch.workflow.model.attachments.length)<=1)"
+                       *ngIf="actionTypes==='draftLaunch' && currentUser.roles && currentUser.roles.length>0"
+                       label="{{launch.documents.existing.model.actionType === 'bulkLaunch' ? 'Bulk Launch': 'Launch'}} (On Behalf Of {{currentUser.roles[0].name}})"
+                       (onClick)="launch.documents.existing.model.actionType === 'bulkLaunch' ? this.launchAsCurrentUser('bulk', currentUser.roles[0], false, '') : launchAsRole(currentUser.roles[0],'normal')"
+                       [model]="launch.launchBtnItems"></p-splitButton>
+        <p-splitButton [styleClass]="'ecm-split-button'"
+                       [disabled]="launch.recipients.toList.length==0  || !launch.workflow.model.attachments ||
+                       !launch.documents.cartItems || (launch.workflow.model.attachments.length==0 && launch.documents.cartItems.length==0) ||
+                       !launch.workflow.model.subject || launch.workflow.model.subject.trim().length===0 || !launch.workflow.model.actions || launch.workflow.model.actions.length==0
+                       || (launch.documents.existing.model.actionType === 'bulkLaunch' && (launch.documents.cartItems.length + launch.workflow.model.attachments.length)<=1)"
+                       *ngIf="actionTypes==='draftLaunch' && (!currentUser.roles || currentUser.roles.length==0) && launch.launchBtnItems.length>0"
+                       label="{{launch.documents.existing.model.actionType === 'bulkLaunch' ? 'Bulk Launch': 'Launch'}}"
+                       (onClick)="launchAsCurrentUser(launch.documents.existing.model.actionType === 'bulkLaunch' ? 'bulk' : 'normal', 0, false, '')"
+                       [model]="launch.launchBtnItems"></p-splitButton>
+        <button pButton type="button"
+                       [disabled]="launch.recipients.toList.length==0  || !launch.workflow.model.attachments ||
+                       !launch.documents.cartItems || (launch.workflow.model.attachments.length==0 && launch.documents.cartItems.length==0) ||
+                       !launch.workflow.model.subject || launch.workflow.model.subject.trim().length===0 || !launch.workflow.model.actions || launch.workflow.model.actions.length==0
+                       || (launch.documents.existing.model.actionType === 'bulkLaunch' && (launch.documents.cartItems.length + launch.workflow.model.attachments.length)<=1)"
+                       *ngIf="actionTypes==='draftLaunch' && (!currentUser.roles || currentUser.roles.length==0) && launch.launchBtnItems.length==0"
+                       label="{{launch.documents.existing.model.actionType === 'bulkLaunch' ? 'Bulk Launch': 'Launch'}}"
+                       (click)="launchAsCurrentUser(launch.documents.existing.model.actionType === 'bulkLaunch' ? 'bulk' : 'normal', 0, false, '')"
+                       ></button>
+
+
+        <!--for Workflow Actions-->
+        <button pButton type="button" [disabled]="launch.recipients.toList.length==0  || !launch.workflow.model.subject || !launch.workflow.model.actions || launch.workflow.model.actions.length==0"
+                *ngIf="actionTypes==='forward'" label="Forward {{ws.delegateId >= 0 ? getActionOnBehalfOf():''}}"
+                (click)="wiaAction.recipientRoleName ? forwardAsRole(wiaAction.recipientRoleId) : forwardAsCurrentUser(wiaAction.recipientEMPNo,wiaAction.recipientName)"></button>
+        <!--<p-splitButton [styleClass]="'ecm-split-button'"-->
+                       <!--[disabled]="launch.recipients.toList.length==0  || !launch.workflow.model.subject"-->
+                       <!--*ngIf="actionTypes==='forward' && currentUser.roles && currentUser.roles.length>0"-->
+                       <!--label="Forward (On Behalf Of {{currentUser.roles[0].name}})"-->
+                       <!--(onClick)="forwardAsRole(currentUser.roles[0])"-->
+                       <!--[model]="launch.forwardBtnItems"></p-splitButton>-->
+        <!--<p-splitButton [styleClass]="'ecm-split-button'"-->
+                       <!--[disabled]="launch.recipients.toList.length==0  || !launch.workflow.model.subject"-->
+                       <!--*ngIf="actionTypes==='forward' && (!currentUser.roles || currentUser.roles.length==0)"-->
+                       <!--label="Forward" (onClick)="forwardAsCurrentUser()"-->
+                       <!--[model]="launch.forwardBtnItems"></p-splitButton>-->
+        <button pButton type="button" [disabled]="launch.recipients.toList.length==0  || !launch.workflow.model.subject || !launch.workflow.model.actions || launch.workflow.model.actions.length==0"
+                *ngIf="actionTypes==='reply'" label="Reply {{ws.delegateId >= 0 ? getActionOnBehalfOf():''}}"
+                (click)="wiaAction.recipientRoleName ? replyAsRole(wiaAction.recipientRoleId) : replyAsCurrentUser(wiaAction.recipientEMPNo,wiaAction.recipientName)"></button>
+        <!--<p-splitButton [styleClass]="'ecm-split-button'"-->
+                       <!--[disabled]="launch.recipients.toList.length==0  ||  !launch.workflow.model.subject"-->
+                       <!--*ngIf="actionTypes==='reply' && currentUser.roles && currentUser.roles.length>0"-->
+                       <!--label="Reply (On Behalf Of {{currentUser.roles[0].name}})"-->
+                       <!--(onClick)="replyAsRole(currentUser.roles[0])"-->
+                       <!--[model]="launch.replyBtnItems"></p-splitButton>-->
+        <!--<p-splitButton [styleClass]="'ecm-split-button'"-->
+                       <!--[disabled]="launch.recipients.toList.length==0  || !launch.workflow.model.subject"-->
+                       <!--*ngIf="actionTypes==='reply' && (!currentUser.roles || currentUser.roles.length==0)"-->
+                       <!--label="Reply" (onClick)="replyAsCurrentUser()"-->
+                       <!--[model]="launch.replyBtnItems"></p-splitButton>-->
+         <button pButton type="button" [disabled]="launch.recipients.toList.length==0  || !launch.workflow.model.subject || !launch.workflow.model.actions || launch.workflow.model.actions.length==0"
+                 *ngIf="actionTypes==='replyAll'" label="Reply All {{ws.delegateId >= 0 ? getActionOnBehalfOf():''}}"
+                 (click)="wiaAction.recipientRoleName ? replyAllAsRole(wiaAction.recipientRoleId) : replyAllAsCurrentUser(wiaAction.recipientEMPNo,wiaAction.recipientName)"></button>
+
+        <!--<p-splitButton [styleClass]="'ecm-split-button'"-->
+                       <!--[disabled]="launch.recipients.toList.length==0  ||  !launch.workflow.model.subject"-->
+                       <!--*ngIf="actionTypes==='replyAll' && currentUser.roles && currentUser.roles.length>0"-->
+                       <!--label="Reply All (On Behalf Of {{currentUser.roles[0].name}})"-->
+                       <!--(onClick)="replyAllAsRole(currentUser.roles[0])"-->
+                       <!--[model]="launch.replyAllBtnItems"></p-splitButton>-->
+        <!--<p-splitButton [styleClass]="'ecm-split-button'"-->
+                       <!--[disabled]="launch.recipients.toList.length==0  || !launch.workflow.model.subject"-->
+                       <!--*ngIf="actionTypes==='replyAll' && (!currentUser.roles || currentUser.roles.length==0)"-->
+                       <!--label="Reply All" (onClick)="replyAllAsCurrentUser()"-->
+                       <!--[model]="launch.replyAllBtnItems"></p-splitButton>-->
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<p-dialog modal="modal" showEffect="fade" appendTo="body" [resizable]="false"  [(visible)]="viewer" (onHide)="closeViewPopUp()">
+    <iframe *ngIf="showIframe" class="dynamic-Iframe-size" [src]="attach_url" frameborder="0" allowfullscreen></iframe>
+</p-dialog>

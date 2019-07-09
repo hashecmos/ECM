@@ -1,0 +1,203 @@
+<div class="ui-g h-100">
+      <!--<div class="ui-g-12 ui-md-12 p-0 p-b-sm">-->
+      <!--&lt;!&ndash;<form #filterAP="ngForm" (submit)="filterAP()">&ndash;&gt;-->
+        <!--<div class="ui-g form-group">-->
+          <!--<div class="ui-g-12 ui-md-1">-->
+            <!--<label>Search Type:</label>-->
+          <!--</div>-->
+          <!--<div class="ui-g-12 ui-md-1">-->
+           <!--<p-radioButton name="username" value="U"  label="User" [(ngModel)]="selectedType" (onClick)="radioButtonClick('U')" ></p-radioButton>-->
+          <!--</div>-->
+          <!--<div class="ui-g-12 ui-md-1">-->
+            <!--<p-radioButton name="groupname" value="G" label="Group" [(ngModel)]="selectedType" (onClick)="radioButtonClick('G')"></p-radioButton>-->
+          <!--</div>-->
+        <!--</div>-->
+         <!--<div class="ui-g form-group">-->
+          <!--<div class="ui-g-12 ui-md-1">-->
+            <!--<label>Search Text:</label>-->
+          <!--</div>-->
+          <!--<div class="ui-g-12 ui-md-3">-->
+            <!--<p-autoComplete [(ngModel)]="searchUserOrGroup" name="userorgroup" [suggestions]="results" (onSelect)="searchSelected($event)" (onKeyUp)="search($event)"-->
+                             <!--field="name" name="name" (onUnselect)="unSelected($event)"></p-autoComplete>-->
+          <!--</div>-->
+           <!--<div class="ui-g-12 ui-md-2">-->
+            <!--<button  pButton type="button" label="Get AD Group" (click)="clearSelection()" [disabled]="!isUserSelected" class="blue-btn"></button>-->
+          <!--</div>-->
+        <!--</div>-->
+        <!--<div class="ui-g-7 ui-md-4 ">-->
+          <!--<div class="pull-right">-->
+            <!--<button  pButton type="submit" label="Clear" (click)="clearSelection()" class="blue-btn"></button>-->
+            <!--<button  pButton type="submit" label="Find" (click)="filterAP()" [disabled]="!results || !searchUserOrGroup" class="blue-btn"></button>-->
+
+          <!--</div>-->
+        <!--</div>-->
+      <!--&lt;!&ndash;</form>&ndash;&gt;-->
+    <!--</div>-->
+  <div class="ui-g-12 ui-md-12 p-t-0 p-r-0 p-l-0">
+    <button pButton type="button" [disabled]="disableAddNewPermission || searchText" label="Add More Policy"
+            class="pull-left" (click)="addNewPolicy()"></button>
+    <button pButton type="button" label="Export" (click)="exportToExcel();"
+            class="pull-right" ></button>
+  </div>
+  <div class="ui-g-12  p-0 h-100">
+     <div class="ui-widget-header" style="padding:2px 10px;border-bottom: 0 none">
+    <!-- global filter -->
+    <div class="ui-g">
+      <div class="ui-g-12 p-0">
+        <table>
+          <tr>
+            <td><i class="fa fa-search v-m m-r-md"></i></td>
+            <td>
+              <input #gb type="text" pInputText size="50"
+                     placeholder="Filter Text" style="color: #ffffff"
+                     class="v-m p-0" [(ngModel)]="searchText" >
+            </td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  </div>
+    <div class="ui-g">
+      <div class="ui-g-12 p-0">
+        <p-dataTable [value]="accessPolicies" [reorderableColumns]="true" [resizableColumns]="true" [rows]="pageSize" [paginator]="true" [globalFilter]="gb">
+          <p-column field="id" header="Id" sortable="true">
+            <ng-template let-col let-policy="rowData" let-ri="rowIndex" pTemplate="body">
+              <span>{{policy[col.field]}}</span>
+            </ng-template>
+          </p-column>
+
+          <p-column field="name" header="Name" sortable="true">
+            <ng-template let-col let-policy="rowData" let-ri="rowIndex" pTemplate="body">
+              <span *ngIf="!policy.isNew">{{policy[col.field]}}</span>
+              <span *ngIf="policy.isNew"><input type="text" pInputText placeholder="Name"
+                                                [(ngModel)]="policy.name"> </span>
+            </ng-template>
+
+          </p-column>
+          <p-column field="orgCode" header="Org Code" sortable="true">
+
+            <ng-template let-col let-policy="rowData" let-ri="rowIndex" pTemplate="body">
+              <span *ngIf="!policy.isNew">{{policy[col.field]}}</span>
+              <span *ngIf="policy.isNew">
+         <p-autoComplete [(ngModel)]="policy.orgCode" [suggestions]="orgCodes"
+                         (completeMethod)="getOrgCodes($event)" field="orgCode" [size]="30"
+                         placeholder="Search Grantee" [minLength]="1" appendTo="body" (onSelect)="onOrgCodeSelect($event,policy)"
+         [forceSelection]="true">
+
+         </p-autoComplete>
+       </span>
+            </ng-template>
+          </p-column>
+           <!--<p-column field="modifiedBy" header="Modified By" sortable="true">-->
+                <!--<p-column field="modifiedDate" header="Modified Date" sortable="true">-->
+          <!--<p-column field="orgName" header="Organization" sortable="true">-->
+            <!--<ng-template let-col let-policy="rowData" let-ri="rowIndex" pTemplate="body">-->
+              <!--<span>{{policy[col.field]}}</span>-->
+            <!--</ng-template>-->
+          <!--</p-column>-->
+          <!--<p-column field="createdBy" header="Created By" sortable="true">-->
+            <!--<ng-template let-col let-policy="rowData" let-ri="rowIndex" pTemplate="body">-->
+              <!--<span>{{policy[col.field]}}</span>-->
+            <!--</ng-template>-->
+          <!--</p-column>-->
+          <!--<p-column field="createdDate" header="Created Date" sortable="true">-->
+            <!--<ng-template let-col let-policy="rowData" let-ri="rowIndex" pTemplate="body">-->
+              <!--<span>{{policy[col.field]}}</span>-->
+            <!--</ng-template>-->
+          <!--</p-column>-->
+          <p-column field="modifiedBy" header="Modified By" sortable="true">
+            <ng-template let-col let-policy="rowData" let-ri="rowIndex" pTemplate="body">
+              <span>{{policy[col.field]}}</span>
+            </ng-template>
+          </p-column>
+          <p-column field="modifiedDate" header="Modified Date" sortable="true">
+            <ng-template let-col let-policy="rowData" let-ri="rowIndex" pTemplate="body">
+              <span>{{policy[col.field]}}</span>
+            </ng-template>
+          </p-column>
+          <p-column  styleClass="text-align-center">
+             <ng-template pTemplate="header">
+        <button pButton type="button" icon="ui-icon-autorenew" title="Refresh" (click)="refresh()"
+                class="remove-btn"></button>
+      </ng-template>
+            <ng-template let-col let-policy="rowData" let-ri="rowIndex" pTemplate="body">
+            <span><button pButton type="button" icon="ui-icon-edit" title="Edit" (click)="edit(policy)"
+              class="remove-btn v-m" *ngIf="!policy.isNew"></button>
+               <button pButton type="button" icon="ui-icon-delete" title="Delete" (click)="confirmDelete(policy)"
+                      class="remove-btn v-m" [disabled]="policy.isNew"></button>
+               <button pButton type="button" icon="ui-icon-info-outline" title="Info" (click)="viewAccesspolicy(policy)"
+                    class="remove-btn v-m"></button>
+        <button pButton type="button" icon="ui-icon-add" title="Edit" (click)="edit(policy)"
+                class="remove-btn v-m" *ngIf="policy.isNew"
+                [disabled]="!policy.name || !policy.orgCode ||  !policy.orgCode.id"></button>
+        <button pButton type="button" icon="ui-icon-remove" title="Remove" (click)="removePolicy(policy)"
+                class="remove-btn v-m" *ngIf="policy.isNew"></button></span>
+            </ng-template>
+          </p-column>
+
+        </p-dataTable>
+      </div>
+    </div>
+    <div>
+      <p-dialog header="Modify Access Policy {{selectedPolicy.name}}" [minWidth]="700" modal="modal" showEffect="fade"
+                [(visible)]="showPermissionDialogue">
+
+        <app-edit-ap-permission [selectedPolicy]="selectedPolicy" [newPermissions]="newPermissions" (addNP)="addNewPermission()"
+        (addP)="addPermission($event)" (getGS)="getGranteesSuggestion($event)" (pc)="permissionChanged($event)"
+        (removeNP)="removeNewPermission($event)" (removeP)="removePermission($event)" (accessTC)="accessTypeChanged($event)"></app-edit-ap-permission>
+        <p-footer>
+          <button type="button" pButton  (click)="savePermissions()" label="Save"></button>
+          <button type="button" pButton (click)="showPermissionDialogue=false" label="Cancel"></button>
+        </p-footer>
+      </p-dialog>
+    </div>
+  </div>
+</div>
+<p-dialog *ngIf="allpolicy" modal="modal" showEffect="fade" [(visible)]="viewpolicy" [minWidth]="600">
+  <p-header>
+   {{allpolicy.name}}
+  </p-header>
+   <table class="ecm-table  w-100">
+        <tbody>
+        <tr class="even">
+          <th style="width:26%" class="text-align-left">Id</th>
+          <td>{{allpolicy.id}}</td>
+        </tr>
+        <tr>
+        <tr class="odd">
+          <th style="width:26%" class="text-align-left">Object Id:</th>
+          <td>{{allpolicy.objectId}}</td>
+        </tr>
+        <tr class="even">
+          <th style="width:26%" class="text-align-left">Name:</th>
+          <td>{{allpolicy.name}}</td>
+        </tr>
+        <tr class="odd">
+          <th style="width:26%" class="text-align-left">Org Code:</th>
+          <td>{{allpolicy.orgCode}}</td>
+        </tr>
+        <tr class="even">
+          <th style="width:26%" class="text-align-left">Organization:</th>
+          <td>{{allpolicy.orgName}}</td>
+        </tr>
+        <tr class="odd">
+          <th style="width:26%" class="text-align-left">Created By:</th>
+          <td>{{allpolicy.createdBy}}</td>
+        </tr>
+        <tr class="even">
+          <th style="width:26%" class="text-align-left">Created Date:</th>
+          <td>{{allpolicy.createdDate}}</td>
+        </tr>
+
+        <tr class="odd">
+          <th style="width:26%" class="text-align-left">Modified By:</th>
+          <td>{{allpolicy.modifiedBy}}</td>
+        </tr>
+        <tr class="even">
+          <th style="width:26%" class="text-align-left">Modified Date:</th>
+          <td>{{allpolicy.modifiedDate}}</td>
+        </tr>
+        </tbody>
+      </table>
+</p-dialog>
+<p-confirmDialog></p-confirmDialog>

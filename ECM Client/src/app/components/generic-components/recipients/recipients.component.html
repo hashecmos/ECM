@@ -1,0 +1,325 @@
+<div class="w-100">
+  <div class="ui-g-12 ui-md-12 ui-sm-12">
+    <mat-tab-group (selectChange)="tabChange($event.tab.textLabel)">
+      <mat-tab label="Search">
+        <div class="ui-g">
+          <div class="ui-g-12">
+            <div class="ui-g-6 ui-md-6 fix-h-350 border-right">
+              <form #searchUserForm="ngForm" (submit)="searchUsers()" class="scrollable">
+
+                <!--search based on criteria as dropdown-->
+                <!-- <div class="ui-g form-group">
+                   <div class="ui-g-12 ui-md-3">
+                     <label>Select Criteria:</label>
+                   </div>
+                   <div class="ui-g-12 ui-md-6">
+                     <p-dropdown [options]="recipientsData.search.searchCriterions"
+                                 [(ngModel)]="recipientsData.search.model.searchCriterion" [autoWidth]="false"
+                                 name="matchType"></p-dropdown>
+                   </div>
+                 </div>
+
+                 <div class="ui-g form-group">
+                   <div class="ui-g-12 ui-md-3">
+                     <label>Search Text:</label>
+                   </div>
+                   <div class="ui-g-12 ui-md-6">
+                     <span class="md-inputfield">
+                         <input type="text" pInputText [(ngModel)]="recipientsData.search.model.searchText"
+                                name="searchSearchText">
+                     </span>
+                   </div>
+                 </div>-->
+
+                <!--search based on criteria as dynamic dropdown-->
+                <!--<table>
+                  <thead>
+                    <tr>
+                      <td>Select Criteria:</td>
+                      <td></td>
+                      <td>Search Text:</td>
+                    </tr>
+                  </thead>
+                   <tbody>
+                    <tr *ngFor="let dynamicCrite of dynamicCriteria;let i=index">
+                        <td width="40%">
+                           <p-dropdown id="template" [options]="dynamicCrite.options" [(ngModel)]="dynamicCrite.selectedOption" name="{{i}}"
+                                       (onChange)="criteriaChanged(i)" [autoWidth]="false" [ngModelOptions]="{standalone: true}">
+                           </p-dropdown>
+                        </td>
+                        <td width="10%"></td>
+                        <td width="60%">
+                          <ng-container *ngIf="dynamicCrite.selectedOption!=='phone'">
+                            <input type="text" [ngModelOptions]="{standalone: true}" [(ngModel)]="dynamicCrite.searchText" required pInputText>
+                          </ng-container>
+                          <ng-container *ngIf="dynamicCrite.selectedOption==='phone'">
+                            <div class="ui-fluid">
+                             <p-spinner [ngModelOptions]="{standalone: true}" [(ngModel)]="dynamicCrite.searchText" [formatInput]="false" [min]="0" required></p-spinner>
+                            </div>
+                          </ng-container>
+                        </td>
+                        <td width="10%">
+                           <button pButton type="button" icon="ui-icon-clear" class="remove-btn" (click)="removeCriteria(i)" [disabled]="dynamicCriteria.length===1"></button>
+                        </td>
+                     </tr>
+                   </tbody>
+                </table>-->
+
+                <!--all search criteria-->
+                <div class="ui-g form-group">
+                  <div class="ui-g-12 ui-md-4">
+                    <label class="text-bold">Select Criteria</label>
+                  </div>
+                  <div class="ui-g-12 ui-md-6">
+                    <label class="text-bold">Search Text</label>
+                  </div>
+                </div>
+                <div class="ui-g form-group">
+                  <div class="ui-g-12 ui-md-4">
+                    <label>Name:</label>
+                  </div>
+                  <div class="ui-g-12 ui-md-6">
+                    <span class="md-inputfield">
+                      <input type="text" pInputText name="userName" [(ngModel)]="userSearchQueary.userName">
+                    </span>
+                  </div>
+                </div>
+                <div class="ui-g form-group">
+                  <div class="ui-g-12 ui-md-4">
+                    <label>Email:</label>
+                  </div>
+                  <div class="ui-g-12 ui-md-6">
+                    <span class="md-inputfield">
+                      <input type="text" pInputText name="mail" [(ngModel)]="userSearchQueary.mail">
+                    </span>
+                  </div>
+                </div>
+                <div class="ui-g form-group">
+                  <div class="ui-g-12 ui-md-4">
+                    <label>Designation:</label>
+                  </div>
+                  <div class="ui-g-12 ui-md-6">
+                    <span class="md-inputfield">
+                      <input type="text" pInputText name="title" [(ngModel)]="userSearchQueary.title">
+                    </span>
+                  </div>
+                </div>
+                <div class="ui-g form-group">
+                  <div class="ui-g-12 ui-md-4">
+                    <label>Phone:</label>
+                  </div>
+                  <div class="ui-g-12 ui-md-6">
+                    <span class="md-inputfield">
+                      <div class="ui-fluid">
+                        <p-spinner [(ngModel)]="userSearchQueary.phone" name="phone" [formatInput]="false" [min]="0"
+                                   class="no-spinners"></p-spinner>
+                      </div>
+                    </span>
+                  </div>
+                </div>
+                <div class="ui-g form-group">
+                  <div class="ui-g-12 ui-md-4">
+                    <label>Org Code:</label>
+                  </div>
+                  <div class="ui-g-12 ui-md-6">
+                    <span class="md-inputfield">
+                      <input type="text" pInputText name="orgCode" [(ngModel)]="userSearchQueary.orgCode">
+                    </span>
+                  </div>
+                </div>
+                <div class="ui-g form-group">
+                  <div class="ui-g-12 ui-md-4">
+                    <label>KOC No:</label>
+                  </div>
+                  <div class="ui-g-12 ui-md-6">
+                    <span class="md-inputfield">
+                      <div class="ui-fluid">
+                        <p-spinner [(ngModel)]="userSearchQueary.empNo" name="empNo" [formatInput]="false" [min]="0"
+                                   class="no-spinners"></p-spinner>
+                      </div>
+                    </span>
+                  </div>
+                </div>
+                <div class="ui-g form-group">
+                  <div class="ui-g-12 ui-md-10 p-l-0">
+                    <button pButton type="submit" label="Search" class="pull-right m-l-md"></button>
+                    <button pButton type="button" (click)="searchUserForm.reset();" label="Clear"
+                            class="pull-right"></button>
+                  </div>
+                </div>
+              </form>
+            </div>
+            <div class="ui-g-6 ui-md-6 fix-h-350">
+              <app-user-list [showAddBtn]="false" [actionType]="documentsData.existing.model.actionType"
+                             [items]="recipientsData.search.result" [field]="'name'" (addToToList)="addToToList($event)"
+                             (addToCCList)="addToCCList($event)" (existsInList)="existsInList($event)"></app-user-list>
+            </div>
+          </div>
+        </div>
+      </mat-tab>
+      <mat-tab label="Roles">
+        <div class="ui-g">
+          <div class="ui-g-8">
+             <vertical-split-pane
+                primary-component-minsize="250"
+                secondary-component-minsize="180"
+                local-storage-key="split-pane"
+                primary-component-initialratio="0.2">
+                <div class="split-pane-content-primary ">
+                  <div class="upper ">
+            <!--<div class="ui-g-4 ui-md-4 ui-sm-12 fix-h-350">-->
+
+                    <app-role-tree [data]="recipientsData" (expandNode)="expandNode($event)"
+                                   (existsInList)="existsInList($event)" (getRoleMembers)="getRoleMembers($event)"
+                                   (addToToList)="addToToList($event)"
+                                   (addToCCList)="addToCCList($event)"
+                                   [actionType]="documentsData.existing.model.actionType">
+                    </app-role-tree>
+            <!--</div>-->
+                  </div>
+                </div>
+
+             <div class="split-pane-content-secondary ">
+        <div class="lower">
+            <!--<div class="ui-g-4 ui-md-4 ui-sm-12">-->
+              <form #searchRoleForm="ngForm" (submit)="searchUsers()">
+                <div class="ui-g form-group">
+                  <div class="ui-g-12 ui-md-4">
+                    <label class="text-bold">Select Criteria</label>
+                  </div>
+                  <div class="ui-g-12 ui-md-8">
+                    <label class="text-bold">Search Text</label>
+                  </div>
+                </div>
+                <div class="ui-g form-group">
+                  <div class="ui-g-12 ui-md-4">
+                    <label>Name:</label>
+                  </div>
+                  <div class="ui-g-12 ui-md-8">
+                    <span class="md-inputfield">
+                      <input type="text" pInputText name="userName" [(ngModel)]="roleSearchQueary.userName">
+                    </span>
+                  </div>
+                </div>
+                <div class="ui-g form-group">
+                  <div class="ui-g-12 ui-md-4">
+                    <label>Org Code:</label>
+                  </div>
+                  <div class="ui-g-12 ui-md-8">
+                    <span class="md-inputfield">
+                      <input type="text" pInputText name="orgCode" [(ngModel)]="roleSearchQueary.orgCode">
+                    </span>
+                  </div>
+                </div>
+                <div class="ui-g form-group">
+                  <div class="ui-g-12 ui-md-12 p-l-0">
+                    <button pButton type="submit" label="Search" class="pull-right m-l-md"></button>
+                    <button pButton type="button" (click)="searchRoleForm.reset();" label="Clear"
+                            class="pull-right"></button>
+                  </div>
+                </div>
+              </form>
+            <!--</div>-->
+            </div>
+             </div>
+             </vertical-split-pane>
+            <!--<div class="ui-g-4 ui-md-4 ui-sm-12 fix-h-350 border-left">-->
+          </div>
+          <div class="ui-g-4">
+              <app-user-list [showAddBtn]="false" [actionType]="documentsData.existing.model.actionType"
+                             [items]="recipientsData.roles.result" [field]="'name'"
+                             (addToToList)="addToToList($event)"
+                             (addToCCList)="addToCCList($event)" (existsInList)="existsInList($event)"
+                             (getRoleMembers)="getRoleMembers($event)"></app-user-list>
+            <!--</div>-->
+          </div>
+
+        </div>
+
+      </mat-tab>
+      <mat-tab label="Lists">
+        <div class="ui-g">
+          <div class="ui-g-12">
+            <div class="ui-g-4 ui-md-4 ui-sm-12 fix-h-350">
+
+              <app-user-lists [listData]="recipientsData.list" (onSelect)="getListUsers($event)"></app-user-lists>
+
+            </div>
+            <div class="ui-g-4 ui-md-4 ui-sm-12 fix-h-350 border-right"
+                 *ngIf="recipientsData.list.selectedUserList.lists && recipientsData.list.selectedUserList.lists.length>0 ">
+              <app-user-list [iconClass]="'fa ui-icon-view-list'" [showTooltip]="false" [showAddBtn]="false"
+                             [actionType]="documentsData.existing.model.actionType"
+                             [items]="recipientsData.list.selectedUserList.lists" [field]="'name'"
+                             (addToToList)="addListUsersToToList($event)"
+                             (addToCCList)="addListUsersToCCList($event)" (existsInList)="existsInListUserList($event)"
+                             (getRoleMembers)="getListUsersForTooltip($event)"
+                             [clickable]="true" (getListMembers)="getListUsers($event,'sublist')"
+                             [isRowSelectable]="true"></app-user-list>
+
+
+            </div>
+            <div class="ui-g-4 ui-md-4 ui-sm-12 fix-h-350 border-right">
+
+              <div class="ui-g">
+                <div class="ui-g-12 ui-md-12 p-0"
+                     *ngIf="recipientsData.list.selectedUserList && recipientsData.list.selectedUserList.users">
+                  <app-user-list [showAddBtn]="false" [actionType]="documentsData.existing.model.actionType"
+                                 [items]="recipientsData.list.selectedUserList.users" [field]="'name'"
+                                 (addToToList)="addToToListFromList($event)"
+                                 (addToCCList)="addToCCListFromList($event)" (existsInList)="existsInList($event)"
+                                 (getRoleMembers)="getRoleMembers($event)"></app-user-list>
+
+
+                </div>
+                <div class="ui-g-12 ui-md-12 p-0"
+                     *ngIf="recipientsData.list.selectedSublist && recipientsData.list.selectedSublist.users">
+                  <app-user-list [showAddBtn]="false" [actionType]="documentsData.existing.model.actionType"
+                                 [items]="recipientsData.list.selectedSublist.users" [field]="'name'"
+                                 (addToToList)="addToToListFromList($event)"
+                                 (addToCCList)="addToCCListFromList($event)" (existsInList)="existsInList($event)"
+                                 (getRoleMembers)="getRoleMembers($event)"></app-user-list>
+
+
+                </div>
+
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </mat-tab>
+    </mat-tab-group>
+  </div>
+  <div class="ui-g-12 ui-md-12 ui-sm-12">
+    <form>
+      <div class="ui-g form-group">
+        <div class="ui-g-12 ui-md-1">
+          <label>To:</label>
+        </div>
+        <div class="ui-g-12 ui-md-11">
+          <p-autoComplete [(ngModel)]="recipientsData.toList" (onUnselect)="onRecipientRemoved()"
+                          (completeMethod)="searchRoles($event)" [suggestions]="filteredRoles" [multiple]="true"
+                          field="name" name="toList"
+          ></p-autoComplete>
+
+
+        </div>
+      </div>
+
+      <div class="ui-g form-group">
+        <div class="ui-g-12 ui-md-1">
+          <label>CC:</label>
+        </div>
+        <div class="ui-g-12 ui-md-11">
+          <p-autoComplete
+            [disabled]="documentsData.existing.model.actionType==='Signature' || documentsData.existing.model.actionType==='Initial'"
+            [(ngModel)]="recipientsData.ccList" (onUnselect)="prepareStepItems()"
+            (completeMethod)="searchRoles($event)" [suggestions]="filteredRoles" [multiple]="true"
+            field="name" name="ccList"></p-autoComplete>
+        </div>
+      </div>
+
+    </form>
+  </div>
+
+</div>

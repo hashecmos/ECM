@@ -1,0 +1,129 @@
+<div class="ui-g-12 ui-md-12 p-t-0 p-r-0">
+  <button pButton type="button" label="Export" (click)="exportToExcel();"
+          class="pull-right" [disabled]="!ecmUserList"></button>
+</div>
+<div class="ui-g-12  p-0 h-100">
+  <div class="ui-widget-header" style="padding:2px 10px;border-bottom: 0 none">
+    <!-- global filter -->
+    <div class="ui-g">
+      <div class="ui-g-12 p-0">
+        <table>
+          <tr>
+            <td><i class="fa fa-search v-m m-r-md"></i></td>
+            <td>
+              <input #gb type="text" pInputText size="50"
+                     placeholder="Filter Text" style="color: #ffffff"
+                     class="v-m p-0">
+            </td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  </div>
+  <div class="ui-g-12  p-0 max-h-600">
+    <p-dataTable [resizableColumns]="true" [reorderableColumns]="true" [value]="ecmUserList" [rows]="itemsPerPage"
+                 [paginator]="true" [responsive]="true" [globalFilter]="gb">
+      <!--<p-column  [sortable]="true" *ngFor="let col of colHeaders" [field]="col.field"-->
+      <!--[header]="col.header"></p-column>-->
+      <p-column [sortable]="true" field="id" header="Id"></p-column>
+      <p-column [sortable]="true" field="userName" header="User Name"></p-column>
+      <p-column [sortable]="true" field="fulName" header="Full Name"></p-column>
+      <p-column [sortable]="true" field="KocId" header="Koc Id"></p-column>
+      <p-column [sortable]="true" field="orgCode" header="Org Code"></p-column>
+      <p-column [sortable]="true" field="title" header="Title"></p-column>
+      <!--<p-column [sortable]="true" field="KocId" header="Koc Id"></p-column>-->
+      <!--<p-column [sortable]="true" field="orgCode" header="Org Code"></p-column>-->
+      <!--<p-column [sortable]="true" field="mail" header="Mail"></p-column>-->
+      <p-column styleClass="col-button">
+        <ng-template pTemplate="header">
+          <button pButton type="button" icon="ui-icon-autorenew" title="Refresh" (click)="refresh()"
+                  class="remove-btn"></button>
+        </ng-template>
+        <ng-template let-rowdat="rowData" let-i="rowIndex" pTemplate="body">
+          <button pButton type="button" icon="ui-icon-info-outline" title="Info" (click)="viewUsers(rowdat)"
+                  class="remove-btn v-m"></button>
+          <button pButton type="button" (click)="showEditUser=true;editUser(rowdat,i)" icon="ui-icon-edit"
+                  title="Edit"
+                  class="remove-btn v-m"
+          ></button>
+
+        </ng-template>
+      </p-column>
+    </p-dataTable>
+  </div>
+</div>
+<div *ngIf="showEditUser">
+  <p-dialog [(visible)]="showEditUser" modal="modal" showEffect="fade" [width]="500" [minHeight]="250">
+    <p-header>
+      Edit User
+    </p-header>
+    <div class="ui-g-12 ui-md-10">
+      <div class="ui-g form-group">
+        <div class="ui-g-12 ui-md-4">
+          <label>Name:</label>
+        </div>
+        <div class="ui-g-12 ui-md-8">
+          <input type="text" pInputText [(ngModel)]="userModel.fulName" readonly name="names">
+        </div>
+        <div class="ui-g-12 ui-md-4">
+          <label>eSign Allowed:</label>
+        </div>
+        <div class="ui-g-12 ui-md-8">
+          <p-dropdown id="esignSelect" [options]="esignSelect" [(ngModel)]="userModel.iseSignAllowed"
+                      [autoWidth]="false"></p-dropdown>
+        </div>
+        <div class="ui-g-12 ui-md-4">
+          <label>Initial Allowed:</label>
+        </div>
+        <div class="ui-g-12 ui-md-8">
+          <p-dropdown id="initialSelect" [options]="initialSelect" [(ngModel)]="userModel.isIntialAllowed"
+                      [autoWidth]="false"></p-dropdown>
+
+        </div>
+      </div>
+
+    </div>
+    <p-footer>
+      <button pButton type="button" label="Cancel" (click)="showEditUser=false"></button>
+      <button pButton type="submit" label="Save" (click)="saveUser();showEditUser=false"></button>
+    </p-footer>
+  </p-dialog>
+</div>
+<p-dialog *ngIf="allusers" modal="modal" showEffect="fade" [(visible)]="viewuser" [minWidth]="600">
+  <p-header>
+    {{allusers.fulName}}
+  </p-header>
+  <table class="ecm-table  w-100">
+    <tbody>
+    <tr class="even">
+      <th style="width:26%" class="text-align-left">Id:</th>
+      <td>{{allusers.id}}</td>
+    </tr>
+    <tr>
+    <tr class="odd">
+      <th style="width:26%" class="text-align-left">User Name:</th>
+      <td> {{allusers.userName}}</td>
+    </tr>
+    <tr class="even">
+      <th style="width:26%" class="text-align-left">Full Name:</th>
+      <td>{{allusers.fulName}}</td>
+    </tr>
+    <tr class="odd">
+      <th style="width:26%" class="text-align-left">Title:</th>
+      <td>{{allusers.title}}</td>
+    </tr>
+    <tr class="even">
+      <th style="width:26%" class="text-align-left">Koc Id:</th>
+      <td>{{allusers.KocId}}</td>
+    </tr>
+    <tr class="odd">
+      <th style="width:26%" class="text-align-left">Org Code:</th>
+      <td>{{allusers.orgCode}}</td>
+    </tr>
+    <tr class="even">
+      <th style="width:26%" class="text-align-left">Mail:</th>
+      <td>{{allusers.mail}}</td>
+    </tr>
+    </tbody>
+  </table>
+</p-dialog>

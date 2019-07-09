@@ -1,0 +1,159 @@
+<div class="ui-g">
+  <div class="ui-g-12 ui-md-12 p-0 ">
+    <form [formGroup]="newDocumentForm" (submit)="addDocument($event)" class="tabled-form">
+      <div class="ui-g-6 ui-md-6 ui-sm-12 p-0">
+        <table class="pull-right">
+          <tbody>
+          <tr>
+            <td>
+              <label class="boldTitle">Document Class:</label>
+            </td>
+            <td class="input">
+              <p-dropdown id="entryTemplates" (onChange)="changeNewClass()"
+                          [options]="entryTemplate" [ngModelOptions]="{standalone: true}"
+                          [(ngModel)]="selectedEntryTemplate" [filter]="true" [autoWidth]="false"
+                          [style]="{'width':'100%'}">
+              </p-dropdown>
+            </td>
+          </tr>
+          <tr *ngFor="let detail of newClassDetails.props">
+            <ng-container *ngIf="detail.hidden === 'false' || detail.hidden === 'FALSE'">
+              <td>
+                <label class="boldTitle">{{detail.desc}}:<b *ngIf="detail.req === 'true' || detail.symName==='DocumentTitle'"
+                                                            style="color:red">*</b></label>
+              </td>
+              <td class="input">
+                <input *ngIf="!detail.lookups && detail.dtype=='STRING' && detail.symName!='ECMNo'" [formControlName]="detail.symName"
+                       class="form-control" type="text" name="{{detail.symName}}" pInputText>
+                <input disabled *ngIf="!detail.lookups && detail.dtype=='STRING' && detail.symName==='ECMNo'" [formControlName]="detail.symName"
+                       class="form-control" type="text" name="{{detail.symName}}"  value="{{detail.mvalues[0]}}" pInputText>
+                <p-calendar id="calendar" *ngIf="!detail.lookups && detail.dtype=='DATE'" [showIcon]="true"
+                            [formControlName]="detail.symName" class="form-control" dateFormat="dd/mm/yy"
+                            [monthNavigator]="true" [yearNavigator]="true" yearRange="1900:2030"
+                            readonlyInput="true" [appendTo]="'body'"></p-calendar>
+                <input *ngIf="!detail.lookups && detail.dtype=='LONG'" [formControlName]="detail.symName"
+                       class="form-control" type="number" name="{{detail.symName}}" pInputText>
+                <p-dropdown *ngIf="detail.lookups" [options]="detail.lookups" placeholder="Select" [filter]="true"
+                            filterBy="label,value.name" [formControlName]="detail.symName" class="form-control"
+                            [style]="{'width':'100%'}" [autoWidth]="false"></p-dropdown>
+              </td>
+            </ng-container>
+          </tr>
+
+          <tr>
+            <td>
+              <label [title]="folderpath" >Folder Path:<b style="color:red">*</b></label>
+            </td>
+            <td class="input">
+              <input [title]="folderpath" [(ngModel)]="folderpath" disabled="disabled" [ngModelOptions]="{standalone: true}"
+                     class="form-control" name="folderpath" pInputText>
+            </td>
+            <td>
+              <button *ngIf="removeEnabled" pButton type="button" icon="ui-icon-close" title="Close"
+                      (click)="removeFolderPath()"></button>
+              <button *ngIf="!removeEnabled" pButton type="button" (click)="openTree=true;"
+                      icon="ui-icon-folder-open"></button>
+            </td>
+
+          </tr>
+          <tr>
+            <td colspan="9" align="right">
+              <button pButton type="submit" [disabled]="!newDocumentForm.valid || (!docFromScanner && !uploadedFiles) || !folderpath " label="Add Document"></button>
+            </td>
+          </tr>
+          </tbody>
+        </table>
+
+      </div>
+      <div class="ui-g-6 ui-md-6 ui-fluid ui-sm-12 p-0">
+        <table>
+          <tbody>
+          <tr>
+            <td>
+              <label class="boldTitle">Select File<b style="color:red">*</b></label>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <p-fileUpload name="demo[]" (onSelect)="onUpload($event)"
+                            invalidFileTypeMessageDetail="Please select a file with valid format" invalidFileTypeMessageSummary="Unknown File Format,"
+                            chooseLabel="Browse" accept="application/zip,application/x-zip,application/x-zip-compressed,.csv,text/plain,image/*,.pdf,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,
+                            ,application/msword, application/vnd.ms-powerpoint,.xlsx,.xls,.doc,.docx,.ppt, .pptx,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                            [showCancelButton]="false" [showUploadButton]="false">
+                <ng-template pTemplate="content">
+                  <p class="fileDrop">Drop Files Here</p>
+                </ng-template>
+                <ng-template let-file pTemplate="file">
+                  <div>{{file.name}}</div>
+                </ng-template>
+              </p-fileUpload>
+            </td>
+
+          </tr>
+          <tr>
+            <td colspan="7" align="center">
+              <button pButton type="button" label="Scan" icon="ui-icon-scanner" (click)="loadDynamsoft()"></button>
+              <div class="ui-fileupload-content ui-widget-content ui-corner-bottom" [ngClass]="{'width-scanned':screen!=='Launch' && screen!=='BrowseModel'}">
+                <div *ngIf="docFromScanner">Scanned Document.pdf</div>
+              </div>
+            </td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+    </form>
+  </div>
+
+
+  <p-dialog appendTo="body" [(visible)]="displayScannerSettings" modal="modal" showEffect="fade" width="500">
+    <p-header>Scan Document</p-header>
+    <div class="ui-g">
+      <div class="ui-g-12">
+        <div class="ui-g-12 ui-md-4">
+          <label class="boldTitle">Scanner:</label>
+        </div>
+        <div class="ui-g-12 ui-md-8">
+          <!--<p-dropdown [options]="scanners" [optionLabel]="name"  (onChange)="selectScanner($event)" [style]="{'width':'100%'}"></p-dropdown>-->
+          <select [(ngModel)]="selectedScanner">
+								<option *ngFor="let tSource of scanners" [ngValue]="tSource">{{tSource.name}}</option>
+          </select>
+        </div>
+        <!--<div id="info" style="display:none;">-->
+          <!--The <strong>PDF Rasterizer</strong> is not installed on this PC-->
+          <!--<br/>Please click the button below to get it installed-->
+          <!--<p>-->
+            <!--<button (click)="downloadPDFR();">Install PDF Rasterizer</button>-->
+          <!--</p>-->
+          <!--<i><strong>The installation is a one-time process</strong> <br/>-->
+            <!--It might take some time depending on your network.</i>-->
+        <!--</div>-->
+        <br/>
+        <div id="cont">
+          <div id="dwtcontrolContainer"></div>
+        </div>
+      </div>
+    </div>
+    <p-footer>
+          <button class="pull-right" pButton type="button" label="Scan" (click)="AcquireImage();"
+                  icon="ui-icon-scanner"></button>
+          <button class="pull-right" pButton type="button" label="Save" (click)="saveScannedImages();"
+                  icon="ui-icon-save"></button>
+    </p-footer>
+  </p-dialog>
+  <p-dialog appendTo="body" modal="modal" showEffect="fade" [(visible)]="openTree" width="800" height="450">
+    <p-header>
+      Select Folder Path
+    </p-header>
+    <div class="ui-tabview-panel folder-path-selection-model">
+      <tree [changeView]="false"></tree>
+    </div>
+    <div class="ui-g-12 ui-md-12"></div>
+     <button pButton type="button" label="Cancel" class="small-btn-right m-t-xl m-r-md m-b-md"
+            (click)="openTree=false"></button>
+    <button pButton type="button"  label="OK" class="small-btn-right m-t-xl m-r-md m-b-md"
+            (click)="selectFolder();openTree=false"></button>
+  </p-dialog>
+</div>
+
+
+

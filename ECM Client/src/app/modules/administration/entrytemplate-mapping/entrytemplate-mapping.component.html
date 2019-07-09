@@ -1,0 +1,65 @@
+<div class="ui-g h-100">
+  <div class="ui-g-12  p-0 h-100">
+    <div class="ui-g  ">
+      <div class="ui-g-4 ui-md-5 ui-sm-4 p-0 p-r-md">
+        <p-dataTable [resizableColumns]="true" [reorderableColumns]="true"  selectionMode="single" [scrollable]="true" scrollHeight="450px"
+                     [(selection)]="selectedEntryTemplate" [value]="entryTemp"
+                     (onRowClick)="showTemplateMapping($event.data)" [globalFilter]="gb">
+          <p-header>
+                    <table>
+                      <tr>
+                        <td><i class="fa fa-search v-m m-r-md"></i></td>
+                        <td>
+                          <input #gb type="text" pInputText size="50"
+                                 placeholder="Filter Text" style="color: #ffffff"
+                                 class="v-m p-0">
+                        </td>
+                      </tr>
+                    </table>
+            Entry Templates
+          </p-header>
+          <p-column [sortable]="true" field="symName"
+                    header="Name"></p-column>
+        </p-dataTable>
+      </div>
+      <div class="ui-g-7 ui-md-7 ui-sm-7 p-0">
+        <div class="ui-g-4 ui-md-4 ui-sm-4">
+          <p-autoComplete [(ngModel)]="selectedorgCode" [suggestions]="orgCodes"
+                          (completeMethod)="getOrgCodes($event)" field="desc" [size]="30"
+                          placeholder="Search OrgUnit" [minLength]="1" appendTo="body" [multiple]="false">
+            <ng-template let-selectedorgCode pTemplate="item">
+              <div class="ui-helper-clearfix">
+                <span class="pull-left">{{selectedorgCode.desc}}</span>
+                <span class="pull-right font-light">{{selectedorgCode.orgCode}}</span>
+              </div>
+            </ng-template>
+          </p-autoComplete>
+        </div>
+        <div class="ui-g-2 ui-md-2 ui-sm-2">
+          <p-checkbox [(ngModel)]="isvisible" (onChange)="checkInvisible($event)" label="Visible"
+                      binary="true"></p-checkbox>
+        </div>
+        <div class="ui-g-3 ui-md-3 ui-sm-3">
+          <button [disabled]="!selectedorgCode" pButton type="button" label="Map"
+                  (click)="mapEntryTemplate()"></button>
+        </div>
+        <div class="ui-g-7 ui-md-12 ui-sm-7 fix-h-450">
+          <p-autoComplete [(ngModel)]="mappedList" [multiple]="true"
+                          placeholder="No Mapped OrgUnits" field="desc" appendTo="body"
+                          (onUnselect)="confirm($event)" [styleClass]="'scrollable'">
+            <ng-template let-value pTemplate="selectedItem">
+              <span class="m-r-xxl">{{value.desc}}({{value.orgCode}})</span>
+            </ng-template>
+          </p-autoComplete>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<p-confirmDialog header="Remove Mapping?" icon="ui-icon-help" width="425" #cd>
+  <p-footer>
+    <button type="button" pButton icon="ui-icon-close" label="No" (click)="cd.reject()"></button>
+    <button type="button" pButton icon="ui-icon-check" label="Yes" (click)="cd.accept()"></button>
+  </p-footer>
+</p-confirmDialog>
+

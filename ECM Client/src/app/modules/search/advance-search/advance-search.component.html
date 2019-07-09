@@ -1,0 +1,34 @@
+<div class="ui-g-12 p-0 search-export" [ngClass]="{show:!isSearchSelected,hide:isSearchSelected}">
+  <button role="button" pButton type="button" label="Export" (click)="exportToExcel()"
+          [disabled]="!searchObj.searchResult || searchObj.searchResult.length==0"></button>
+  <span class="search-result" *ngIf="searchObj.searchResult">Total Results: {{searchObj.totalResults}}</span>
+</div>
+<!--<p-tabView [activeIndex]="selectedIndex" (onChange)="changeTab($event)">-->
+  <!--<p-tabPanel header="Document Search">-->
+<p-accordion [multiple]="true" [style]="{'margin-top':'45px'}"  >
+    <p-accordionTab header="Document Search"  [selected]="isSearchSelected">
+    <app-search-document [isSimpleSearch]="false" (onSearchComplete)="onSearchComplete()"
+                         [data]="searchObj" [showSavedSearches]="true"></app-search-document>
+  <!--</p-tabPanel>-->
+  <!--<p-tabPanel header="Search Result">-->
+    </p-accordionTab>
+   <p-accordionTab header="Search Result" [selected]="!isSearchSelected">
+    <div class="ui-g" *ngIf="searchObj.searchResult">
+      <div class="ui-g-12 fill-available-height">
+        <data-table [showCount]="true" [totalCount]="searchObj.totalResults" (sendData)="getData($event,sidemenu);" [showInfoIcon]="true"
+                    [tableData]="searchObj.searchResult" [colHeaders]="colHeaders" [itemsPerPage]="searchObj.pageSize?searchObj.pageSize:50"
+                    [rowExpandable]="false" (addToCart)="addToCart($event)" [totalRecords]="searchObj.searchResult?searchObj.totalResults:0"
+                    (download)="downloadDoc($event)" [lazy]="true" [emptyMessage]="emptyMessage" (sendSortPagination)="continueSearch($event)">
+        </data-table>
+      </div>
+    </div>
+  <!--</p-tabPanel>-->
+<!--</p-tabView>-->
+   </p-accordionTab>
+</p-accordion>
+<div [ngClass]="{'hidden':!selectedItem || selectedItem.length===0}">
+  <aside-menu #sidemenu side="right" width="300px" isBackdrop="false" sideMode="push">
+    <app-rightpanel (sendFolders)="getBrowseUpdated($event);" [currentScreen]="screen" (refreshScreen)="refresh($event);"
+                    (togglePanel)="toggle()" (sendMoveToFolder)="getMoveToFolder($event)"></app-rightpanel>
+  </aside-menu>
+</div>

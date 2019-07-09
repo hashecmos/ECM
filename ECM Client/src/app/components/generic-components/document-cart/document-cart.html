@@ -1,0 +1,54 @@
+<div class="document-cart scrollable">
+  <div class="text-align-center w-100 p-md" *ngIf="!cartItems || cartItems.length==0">
+    <label>
+      No Document In Cart
+    </label>
+  </div>
+  <table class="ecm-table layout-auto w-100" *ngIf="cartItems">
+    <thead *ngIf="showHeading">
+    <tr>
+      <th><i class="fa ui-icon-shopping-cart v-m"></i></th>
+      <th><span class="v-m">Document Cart</span></th>
+    </tr>
+    </thead>
+    <tbody>
+    <ng-container *ngFor="let item of cartItems;let i=index;">
+      <tr *ngIf="item" [ngClass]="{'even':i%2===0}">
+        <td class="icon p-r-0">
+        <span *ngIf="item.format">
+           <span class="v-m"></span>
+           <img src="assets/images/icons/file-pdf-o.png" *ngIf="item.format.indexOf('pdf')!==-1">
+              <img src="assets/images/icons/file-excel-o.png" *ngIf="item.format.indexOf('sheet')!==-1 ||
+              item.format.indexOf('xlsx')!==-1">
+              <img src="assets/images/icons/file-image-o.png" *ngIf="item.format.indexOf('image')!==-1">
+              <img src="assets/images/icons/file-word-o.png" *ngIf="item.format.indexOf('msword')!==-1">
+              <img src="assets/images/icons/file-text-o.png" *ngIf="item.format.indexOf('pdf')===-1 && item.format.indexOf('sheet')===-1
+                  && item.format.indexOf('xlsx')===-1 && item.format.indexOf('image')===-1  && item.format.indexOf('msword')===-1">
+        </span>
+        <span *ngIf="!item.format">
+          <span class="v-m"></span>
+          <img src="assets/images/icons/file-text-o.png" class="icon">
+        </span>
+        </td>
+        <td>
+          <div>
+            <span *ngIf="!isItemSelectable" pTooltip="{{item.fileName}}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" [tooltipStyleClass]="'tooltip m-t-xl'"
+                  tooltipPosition="left">{{item.fileName | truncate : canRemoveLastItem ? 20 : 50}}</span>
+            <a *ngIf="isItemSelectable" href="javascript:" (click)="mOnItemSelect(item)" pTooltip="{{item.fileName}}"
+               [tooltipStyleClass]="'tooltip'" tooltipPosition="left">{{item.fileName | truncate : 50}}</a>
+          </div>
+        </td>
+        <td align="right">
+          <a class="p-0" href="javascript:">
+            <i *ngIf="isItemSelectable" class="fa ui-icon-remove-red-eye v-m" pTooltip="Preview" [tooltipStyleClass]="'tooltip'"
+               tooltipPosition="left" (click)="showDocPreview(item)"></i>
+            <i [ngClass]="{'disabled':removeInProgress}" class="fa ui-icon-clear v-m" pTooltip="Remove"
+               [tooltipStyleClass]="'tooltip'" tooltipPosition="left" (click)="removeFromCart(item)"></i>
+          </a>
+        </td>
+      </tr>
+    </ng-container>
+    </tbody>
+  </table>
+
+</div>

@@ -1,0 +1,33 @@
+<button class="btn btn-default" id="toggle-sidebar" type="button" (click)="eventCalled()">&#9776;</button>
+<nav class="sidebar" [ngClass]="{sidebarPushRight: isActive}">
+	<ul class="list-group">
+		<a class="list-group-item">
+			<i class="fa fa-fw fa-bar-chart-o"></i> Reports
+		</a>
+<!-- 		<a routerLink="/dashboard/chart" [routerLinkActive]="['router-link-active']" class="list-group-item">
+			 Workflow Received
+		</a> -->
+		<a routerLink="/dashboard/blankpage" [routerLinkActive]="['router-link-active']" class="list-group-item">
+			 Inbox WorkItem Count
+		</a>
+		<a routerLink="/dashboard/sentcount" [routerLinkActive]="['router-link-active']" class="list-group-item">
+			 Sent WorkItem Count
+		</a>
+		<a routerLink="/dashboard/inboxworkitem" [routerLinkActive]="['router-link-active']" class="list-group-item">
+			 Inbox Workflow Items
+		</a>
+		<a routerLink="/dashboard/sentworkitem" [routerLinkActive]="['router-link-active']" class="list-group-item">
+			 Sent Workflow Items
+		</a>
+		<a routerLink="/dashboard/document" [routerLinkActive]="['router-link-active']" class="list-group-item">
+			 Document Count
+		</a>
+		<a routerLink="/dashboard/esigndocument" [routerLinkActive]="['router-link-active']" class="list-group-item">
+			 Esign Document Count
+		</a>
+		<!-- <a [routerLink]="['components']"
+			[routerLinkActive]="['router-link-active']" class="list-group-item">
+			<i class="fa fa-th-list"></i> &nbsp;Component
+		</a> -->
+	</ul>
+</nav>

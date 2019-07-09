@@ -1,0 +1,33 @@
+<div>
+  <p-tree [value]="data.roles.roleTree" selectionMode="single" [(selection)]="roleTreeSelection"
+          (onNodeExpand)="mExpandNode($event)"
+          [styleClass]="'role-tree '" (onNodeSelect)="mSelectNode($event)">
+    <ng-template let-node pTemplate="default">
+      <table class="ecm-table w-100 p-0 item" (mouseover)="mExistsInList(node.data)">
+         <tr  (mouseover)="mGetRoleMembers(node.data)" [escape]="false" pTooltip="{{node.data.members}}" [tooltipStyleClass]="'tooltip'"
+            tooltipPosition="bottom" >
+          <td ><span class="v-m" *ngIf="node.label">{{node.label}}</span>
+            <span class="v-m" *ngIf="!node.label && node.data">{{node.data.empNo}}</span>
+          </td>
+          <td align="right" class="action-btn-group">
+            <span class="action-btn-group-sm">
+              <button *ngIf="showAddToToBtn"  pButton type="button" label="To" class="v-m" (click)="mAddToToList(node.data)"
+                      [disabled]="node.data.disabled || !node.data.orgCode || (actionType==='Signature' && node.data.iseSignAllowed===0) ||
+                       (actionType==='Initial' && node.data.isInitialAllowed===0)"></button>
+              <button *ngIf="showAddToCCBtn" pButton type="button" label="CC" class="v-m" (click)="mAddToCCList(node.data)"
+                      [disabled]="node.data.disabled || actionType==='Signature' || actionType==='Initial' || !node.data.orgCode"></button>
+              <button *ngIf="editRole && !node.leaf" pButton type="button" icon="ui-icon-edit" title="Edit" class="remove-btn v-m"
+                      (click)="editRoleitem(node.data)"></button>
+              <button *ngIf="editRole && !node.leaf" pButton type="button" icon="ui-icon-delete" title="Delete" class="remove-btn v-m"
+                      (click)="deleteRole(node.data)" [disabled]="!node.data.orgCode"></button>
+              <button pButton type="button" icon="ui-icon-remove" (click)="mRemoveItem(node)"
+                      class="remove-btn v-m" *ngIf="showRemoveItemBtn && node.leaf"></button>
+              <button pButton type="button" icon="ui-icon-add" (click)="mAddChildren(node)" class="remove-btn v-m pull-right"
+                      *ngIf="showAddChildBtn" [disabled]="node.data.disabled || !node.data.orgCode"></button>
+            </span>
+          </td>
+        </tr>
+      </table>
+    </ng-template>
+  </p-tree>
+</div>

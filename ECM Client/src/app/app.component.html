@@ -1,0 +1,15 @@
+<div class="layout-wrapper w-100 h-100" (click)="onWrapperClick()"
+     [ngClass]="{'layout-wrapper-static': layoutStatic,
+                'layout-wrapper-active': mobileMenuActive,
+                'layout-rtl': isRTL}">
+  <p-growl [life]="5000" [(value)]="msgs"></p-growl>
+  <p-confirmDialog header="Confirmation" width="425"
+  key="addToCartConfirmation"></p-confirmDialog>
+  <router-outlet>
+  </router-outlet>
+  <div class="progress-bar">
+  <div [ngBusy]="{busy: coreService.progress.busy, message: coreService.progress.message,
+  backdrop: coreService.progress.backdrop?coreService.progress.backdrop:true}">
+  </div>
+</div>
+</div>

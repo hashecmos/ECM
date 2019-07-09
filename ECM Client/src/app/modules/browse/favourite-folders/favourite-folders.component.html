@@ -1,0 +1,84 @@
+<div *ngIf="!favFolders" class="no-favourites-text folder-path">
+  <i class="material-icons m-l-xxxl font-lg">error_outline</i><br><br><span
+  class="font-sm">  No Favourite Folders</span>
+</div>
+
+<vertical-split-pane
+  primary-component-minsize="300"
+  secondary-component-minsize="1080"
+  local-storage-key="split-pane"
+  primary-component-initialratio="0.2">
+  <div class="split-pane-content-primary file-tree">
+    <div class="upper">
+      <p-tree [contextMenu]="cm" [value]="folderList" [loading]="loading"
+              (onNodeContextMenuSelect)="onContextMenu($event)" selectionMode="single" [(selection)]="selectedFolder"
+              (onNodeExpand)="nodeExpand($event)" (onNodeSelect)="nodeSelect($event)"></p-tree>
+      <p-contextMenu #cm [model]="cmItems"></p-contextMenu>
+    </div>
+  </div>
+
+
+  <div class="split-pane-content-secondary">
+    <div class="lower">
+      <div *ngIf="favFolders" class="ui-g-12 ui-md-2 p-t-0">
+        <button pButton type="button" [disabled]="!documentFolders" label="Add Document" (click)="addDocTrigger();"
+                class="pull-left"></button>
+      </div>
+      <div class="ui-g-12 ui-md-9">
+        <span class="folder-path p-b-md">{{folderPath}}</span>
+      </div>
+      <div *ngIf="favFolders" class="ui-g-12 ui-md-1 p-0 p-b-md p-r-sm p-l-md">
+        <button pButton type="button" label="Export" (click)="exportToExcel();"
+                class="pull-right" [disabled]="!documentFolders || documentFolders.length==0"></button>
+      </div>
+      <div *ngIf="documentFolders && favFolders" class="ui-g-10 ui-sm-12 p-0 p-r-sm p-l-md ui-md-12">
+        <data-table (sendData)="getData($event,sidemenu);" (refreshScreen)="refreshTable($event);" [showCount]="true"
+                    [totalCount]="documentFolders.length"
+                    [emptyMessage]="emptyMessage" [showDownloadIcon]="false" [showAddCartIcon]="false"
+                    [tableData]="documentFolders" [showInfoIcon]="true" [colHeaders]="colHeaders"
+                    [totalRecords]="documentFolders?documentFolders.length:0"
+                    [itemsPerPage]="itemsPerPage"></data-table>
+      </div>
+      <div [ngClass]="{'hidden':!selectedItem || selectedItem.length===0}">
+        <aside-menu #sidemenu side="right" width="300px" isBackdrop="false" sideMode="push">
+          <app-rightpanel (sendFolders)="getBrowseUpdated($event);" (sendMoveToFolder)="getMoveToFolder($event)"
+                          [currentScreen]="screen"
+                          (refreshScreen)="refresh($event);" (togglePanel)="toggle()"></app-rightpanel>
+        </aside-menu>
+      </div>
+    </div>
+  </div>
+</vertical-split-pane>
+<div *ngIf="viewMoveTree">
+  <p-dialog appendTo="body" modal="modal" showEffect="fade" [resizable]="false"
+            [(visible)]="viewMoveTree" width="600" [minHeight]="400">
+    <p-header>
+      Move To Folder
+    </p-header>
+    <div class="max-h-350">
+      <tree [clearSelectedDocs]="true" [changeView]="false"></tree>
+    </div>
+    <p-footer>
+      <button type="button" pButton (click)="moveConfirm()" label="Move"></button>
+      <button type="button" pButton (click)="viewMoveTree=false" label="Cancel"></button>
+    </p-footer>
+  </p-dialog>
+</div>
+<div class="progress-bar">
+  <div [ngBusy]="{busy: busy, message: '', backdrop: true}"></div>
+</div>
+<div *ngIf="openDocVisible">
+  <p-dialog [(visible)]="openDocVisible" modal="modal" [width]="1000" showEffect="fade" [resizable]="false">
+    <p-header>
+      Add Document
+    </p-header>
+    <div class="ui-g">
+      <div class="ui-g-12">
+        <div class="ui-tabview-panel add-doc-container">
+          <app-add-document [assignedPath]="assignedPath" [assignedId]="assignedId" (onAddSuccess)="onDocumentAdded()"
+                            [screen]="'BrowseModel'"></app-add-document>
+        </div>
+      </div>
+    </div>
+  </p-dialog>
+</div>

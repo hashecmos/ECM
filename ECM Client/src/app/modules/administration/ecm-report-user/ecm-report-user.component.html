@@ -1,0 +1,190 @@
+<div class="ui-g-12 ui-md-12 p-t-0 p-r-0 p-b-0 p-l-0">
+  <button pButton type="button" label="Add User" (click)="showEditUser=true"
+            class="pull-left m-b-md"></button>
+  <button pButton type="button" label="Export" (click)="exportToExcel();"
+            class="pull-right" [disabled]="!ecmUserList"></button>
+</div>
+<div class="ui-g-12  p-0 h-100">
+   <div class="ui-widget-header" style="padding:2px 10px;border-bottom: 0 none">
+    <!-- global filter -->
+    <div class="ui-g">
+      <div class="ui-g-12 p-0">
+        <table>
+          <tr>
+            <td><i class="fa fa-search v-m m-r-md"></i></td>
+            <td>
+              <input #gb type="text" pInputText size="50"
+                     placeholder="Filter Text" style="color: #ffffff"
+                     class="v-m p-0">
+            </td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+
+  <div class="ui-g-12 p-0 max-h-600">
+
+    <p-dataTable [resizableColumns]="true" [reorderableColumns]="true"  [value]="ecmUserList" [rows]="itemsPerPage" [paginator]="true" [responsive]="true" [globalFilter]="gb">
+      <!--<p-column  [sortable]="true" *ngFor="let col of colHeaders" [field]="col.field"-->
+                    <!--[header]="col.header"></p-column>-->
+          <p-column [sortable]="true" field="id" header="Id"></p-column>
+          <p-column [sortable]="true" field="userName" header="User Name"></p-column>
+          <p-column [sortable]="true" field="fulName" header="Full Name"></p-column>
+          <p-column [sortable]="true" field="KocId" header="Koc Id"></p-column>
+          <p-column styleClass="col-button">
+            <ng-template pTemplate="header">
+              Report Admin
+            </ng-template>
+            <ng-template let-dat="rowData" let-i="rowIndex" pTemplate="body">
+              <span *ngIf="dat.isReportAdmin==='Y'">Yes</span>
+              <span *ngIf="dat.isReportAdmin==='N'">No</span>
+            </ng-template>
+          </p-column>
+          <p-column styleClass="col-button">
+            <ng-template pTemplate="header">
+             <button pButton type="button" icon="ui-icon-autorenew" title="Refresh" (click)="refresh()"
+                  class="remove-btn"></button>
+            </ng-template>
+            <ng-template let-dat="rowData" let-i="rowIndex" pTemplate="body">
+              <button pButton type="button" icon="ui-icon-delete" title="Remove" (click)="confirm(dat)" class="remove-btn v-m"></button>
+            </ng-template>
+          </p-column>
+    </p-dataTable>
+  </div>
+</div>
+<div *ngIf="showEditUser" >
+<p-dialog [(visible)]="showEditUser" modal="modal" showEffect="fade" [width]="650" (onHide)="closeModel()" [height]="500">
+  <p-header>
+    Add User
+  </p-header>
+  <div class="form-group">
+      <div class="ui-g-6 ui-md-6 p-l-0 p-r-0">
+        <!--<div class="ui-g-12 ui-md-12">
+          <span class="text-bold">Search Users</span>
+        </div>
+        <div class="ui-g-12 ui-md-12">
+          <div class="searchBox">
+            <div class="form-group">
+              Select Criteria:
+              <p-dropdown id="template" [options]="criteria" [(ngModel)]="selectedcriteria"
+                          [autoWidth]="false"></p-dropdown>
+            </div>
+            <div class="form-group">
+              Search Text:
+              <input type="text" [(ngModel)]="searchText" (keyup.enter)="searchUsers()" pInputText>
+            </div>
+            <button pButton type="button" (click)="searchUsers()" label="Search"
+                    class="right-button  medium-btn"></button>
+            <button pButton type="button" (click)="clearResult()" label="Clear"
+                    class="left-button m-r-md medium-btn"></button>
+            <div style="clear:both"></div>
+          </div>
+        </div>-->
+
+            <div class="ui-g form-group">
+              <div class="ui-g-12 ui-md-8">
+                Allow Report Administrator:
+              </div>
+              <div class="ui-g-12 ui-md-4">
+                <p-checkbox name="isReportAdmin" [(ngModel)]="isReportAdmin" binary="false"></p-checkbox>
+              </div>
+            </div>
+            <div class="ui-g form-group">
+              <div class="ui-g-12 ui-md-12"></div>
+            </div>
+           <!--all search criteria-->
+            <form #searchUserForm="ngForm" (submit)="searchUsers()" class="scrollable">
+                <div class="ui-g form-group">
+                  <div class="ui-g-12 ui-md-5">
+                    <label class="text-bold">Select Criteria</label>
+                  </div>
+                  <div class="ui-g-12 ui-md-7">
+                    <label class="text-bold">Search Text</label>
+                  </div>
+                </div>
+                <div class="ui-g form-group">
+                  <div class="ui-g-12 ui-md-5">
+                    <label>Name:</label>
+                  </div>
+                  <div class="ui-g-12 ui-md-7">
+                    <span class="md-inputfield">
+                      <input type="text" pInputText name="userName" [(ngModel)]="searchQueary.userName">
+                    </span>
+                  </div>
+                </div>
+                <div class="ui-g form-group">
+                  <div class="ui-g-12 ui-md-5">
+                    <label>Email:</label>
+                  </div>
+                  <div class="ui-g-12 ui-md-7">
+                    <span class="md-inputfield">
+                      <input type="text" pInputText name="mail" [(ngModel)]="searchQueary.mail">
+                    </span>
+                  </div>
+                </div>
+                <div class="ui-g form-group">
+                  <div class="ui-g-12 ui-md-5">
+                    <label>Designation:</label>
+                  </div>
+                  <div class="ui-g-12 ui-md-7">
+                    <span class="md-inputfield">
+                      <input type="text" pInputText name="title" [(ngModel)]="searchQueary.title">
+                    </span>
+                  </div>
+                </div>
+                <div class="ui-g form-group">
+                  <div class="ui-g-12 ui-md-5">
+                    <label>Phone:</label>
+                  </div>
+                  <div class="ui-g-12 ui-md-7">
+                    <span class="md-inputfield">
+                      <div class="ui-fluid">
+                        <p-spinner [(ngModel)]="searchQueary.phone" name="phone" [formatInput]="false" [min]="0" class="no-spinners"></p-spinner>
+                      </div>
+                    </span>
+                  </div>
+                </div>
+                <div class="ui-g form-group">
+                  <div class="ui-g-12 ui-md-5">
+                    <label>Org Code:</label>
+                  </div>
+                  <div class="ui-g-12 ui-md-7">
+                    <span class="md-inputfield">
+                      <input type="text" pInputText name="orgCode" [(ngModel)]="searchQueary.orgCode">
+                    </span>
+                  </div>
+                </div>
+                <div class="ui-g form-group">
+                  <div class="ui-g-12 ui-md-5">
+                    <label>KOC No:</label>
+                  </div>
+                  <div class="ui-g-12 ui-md-7">
+                    <span class="md-inputfield">
+                      <div class="ui-fluid">
+                        <p-spinner [(ngModel)]="searchQueary.empNo" name="empNo" [formatInput]="false" [min]="0" class="no-spinners"></p-spinner>
+                      </div>
+                    </span>
+                  </div>
+                </div>
+                <div class="ui-g form-group">
+                  <div class="ui-g-12 ui-md-12 p-l-0">
+                    <button pButton type="submit" label="Search" class="pull-right m-l-md"></button>
+                    <button pButton type="button" (click)="searchUserForm.reset();clearResult();" label="Clear" class="pull-right"></button>
+                  </div>
+                </div>
+            </form>
+      </div>
+      <div *ngIf="searchStarted" class="ui-g-6 ui-md-6 fix-h-400 p-t-md">
+        <div *ngIf="SelectedUserList.length > 0" >
+          <div class="searchresult p-b-md">Total Search Results:{{SelectedUserList.length}}</div>
+        </div>
+        <app-user-list [items]="SelectedUserList" [field]="'name'" (addToList)="addUser($event)"
+                        [showAddBtn]="true" [showToBtn]="false"
+                       [showCcBtn]="false"></app-user-list>
+      </div>
+    </div>
+</p-dialog>
+</div>
+<p-confirmDialog header="Remove User?"></p-confirmDialog>

@@ -1,0 +1,128 @@
+<div class="container-fluid">
+    <!-- Page Heading -->
+    <div class="row">
+        <div class="col-xl-12">
+            <ol class="breadcrumb">
+                <li><i class="fa fa-fw fa-bar-chart-o"></i>Reports</li>
+                <li class="active">Inbox WorkItem Count</li>
+            </ol>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="card card-block">
+            
+                <tabset #tabset>
+                    <tab #testTab [active]="unselectTab" (select)="activateSearchTab();searchReportForm.reset();" class="tab-pane active" (click)="alertPop()">
+                        <ng-template tabHeading>
+                            <i class="fa fa-search" aria-hidden="true"></i>&nbsp;Search Filter
+                        </ng-template>
+                        <table>
+                            <tr>
+                                <td style="width : 50%;">
+	                                <app-tree [testTab] = 'testTab' (orgCodeUpdated)="handleOrgCodeUpdated($event)"></app-tree>
+                                </td>
+                                
+                                <td style="vertical-align: top; width : 50%;">
+                                 <form #searchReportForm="ngForm">
+                                    <div style="width: 100%; height: auto;margin: 0 auto;">
+                                        <table>
+                                            <tr class="form-group">
+                                                <td>Organization Code</td>
+                                                <td><input type="text" id="orgCode" name="orgCode" [(ngModel)]="reportOrgCode" required style="width: 100%;" readonly/></td>
+                                            </tr>
+                                            <tr class="form-group">
+                                                <td>Status</td>
+                                                <td>
+                                                    <select id="options" [(ngModel)]="status" name="status" style="width: 100%;" required>
+                                                        <option value="ALL">All</option>
+                                                        <option value="PENDING">Pending</option>
+                                                        <option value="COMPLETE">Complete</option>
+                                                        <option value="ARCHIVE">Archive</option>
+												</select>
+                                                </td>
+                                            </tr>
+                                            <tr class="form-group">
+                                                <td>From</td>
+                                                <td>
+                                                    <my-date-picker ng-readonly name="fromDate" id="fromDt" [options]="myDatePickerOptions" [(ngModel)]="selectedFromDate" (inputFieldChanged)="disableToDate($event)" required></my-date-picker>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>To</td>
+                                                <td>
+                                                    <my-date-picker ng-readonly name="toDate" id="toDt" [options]="myDatePickerDisableOptions" [(ngModel)]="selectedToDate" required></my-date-picker>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td></td>
+                                                <td>
+                                                    <button [disabled]="!searchReportForm.valid" class="btn btn-primary viewReport" (click)="activateViewTab()">View Report</button>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                  </form>
+                                </td>
+                            </tr>
+                        </table>
+                    </tab>
+                    <tab #viewReportTab [disabled]=disableTab [active]=selectTab (select)="activateResultTab()"  (click)="viewReportClickEvent()">
+                        <ng-template tabHeading>
+                            <i class="fa fa-fw fa-bar-chart-o"></i>&nbsp;View Report
+                        </ng-template>
+                        <br>
+                        <div id="image">
+                            
+                        </div>
+                        <hr>
+
+                        <div>
+                            <table>
+                                <tr style="background: darkgray;">
+                                    <!-- <td style="width : 40%;">
+                                        <span class="fa fa-step-backward"></span>
+                                        <span class="fa fa-arrow-left"></span>
+                                        <input type="text"> of 1
+                                        <span class="fa fa-arrow-right"></span>
+                                        <span class="fa fa-step-forward"></span>
+                                    </td> -->
+                                    <td style="width : auto;"></td>
+                                    <td style="width : 30%; text-align: end;">
+                                            <select id="exportType">
+                                                <option value="excel">Excel</option>
+										        <option value="pdf">PDF</option>
+										    </select>
+
+                                        <span class="report_export" (click)="exportData()"><b>Export Report</b></span>
+                                    </td>
+                                </tr>
+                            </table>
+
+
+                        </div>
+                        <br>
+ 						   <div id="container"	style="min-width: 310px; height: 400px; max-width: 800px; margin: 0 auto"></div>
+                        <br>
+                        <div>
+                            <table style="border: 1px solid black;">
+                                <tr class="tableRow">
+                                    <td>ID</td>
+                                    <td>NAME</td>
+                                    <td>COUNT</td>
+                                </tr>
+                                <tr *ngFor="let rptData of reportData">
+                                    <td style="border: 1px dotted black;">{{rptData.orgCode}}</td>
+                                    <td style="border: 1px dotted black;">{{rptData.desc}}</td>
+                                    <td style="border: 1px dotted black;">{{rptData.count}}</td>
+                                </tr>
+                            </table>
+
+                        </div>
+                    </tab>
+                </tabset>
+            </div>
+        </div>
+
+    </div>
+</div>

@@ -1,0 +1,46 @@
+<div class="loginpage">
+	<div class="row">
+		<div class = "center">
+			<table>
+				<tr>
+					<td style ="width : 50%;"> <img src="assets/img/SB-admin.png" width="150px" class="user-avatar" /> </td>
+					<td style ="width : 50%;">
+						<table>
+							<tr>
+								<td>
+									<h1>KOC DIMS Reports</h1>								
+								</td>
+							</tr>
+							<tr>
+								<td>
+									<div *ngIf="!intLogin">
+										<form role="form" >
+											<div class="form-content">
+												<div class="form-group">
+													<input type="text" id="username" name ="login" class="form-control input-underline input-lg"  placeholder="Username" autofocus>
+												</div>
+							
+												<div class="form-group">
+													<input type="password" id="password" name ="password" class="form-control input-underline input-lg" placeholder="Password">
+												</div>
+											</div>
+											<a class="btn rounded-btn" type="button" (click)="loginUser()"> Log in
+											</a> <!-- &nbsp; <a type="submit" class="btn rounded-btn"
+												routerLink="/signup">Register</a> -->
+										</form>
+									</div>
+									<div *ngIf="intLogin">
+          								<h3 style="text-align:center;margin-top:10px;margin-bottom:0;">{{loginMsg}}</h3>
+        							</div>
+								</td>
+							</tr>
+						</table>
+						
+						
+					</td>
+				</tr>
+			</table>
+			
+		</div>
+	</div>
+</div>

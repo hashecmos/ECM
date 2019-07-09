@@ -1,0 +1,33 @@
+body {
+    font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 1rem;
+    line-height: 1.5;
+    color: #373a3c;
+    background-color: #fff;
+}
+body {
+    margin: 0;
+}
+*, *::before, *::after {
+    box-sizing: inherit;
+}
+body {
+    display: block;
+    margin: 8px;
+}
+
+.main-container{
+  margin: 50px 0 0 225px;
+    padding: 10px;
+    -ms-overflow-x: hidden;
+        overflow-x: hidden;
+    position: relative;
+    z-index: 1;
+}
+
+.card-header {
+  background-color: #00518d !important;
+  color: #ffffff !important;
+}
+@import '~angular-tree-component/dist/angular-tree-component.css';
+

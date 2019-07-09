@@ -1,0 +1,239 @@
+<div class="ui-g-12 ui-md-4">
+  <p-accordion>
+    <ng-container *ngFor="let list of userList;let i = index;">
+      <ng-container *ngIf="list.id<'1'">
+        <p-accordionTab (click)="showListMembers($event,list.id,i)">
+          <p-header>
+            <i class="ui-icon-ac-h fa"
+               [ngClass]="{'ui-icon-view-list':list.name !== 'Favourites','ui-icon-star-border':list.name==='Favourites'}"></i>
+            {{list.name}}
+          </p-header>
+          <ng-container *ngIf="list.id != '0'">
+            <ng-container *ngFor="let member of listMembers;let j = index;">
+              <ul>
+                <li (click)="$event.stopPropagation()">
+                  {{member.fulName}}
+                </li>
+              </ul>
+            </ng-container>
+          </ng-container>
+        </p-accordionTab>
+      </ng-container>
+      <ng-container *ngIf="list.id == '1'">
+        <p-accordionTab (click)="showSubList($event,list.id,i)">
+          <p-header>
+            <i class="fa ui-icon-view-list ui-icon-ac-h"></i>
+            {{list.name}}
+          </p-header>
+          <table class="ecm-table w-100">
+            <tr *ngFor="let lst of distList.lists;let j = index;" class="item" [ngClass]="{'even':j%2===0}">
+              <td>
+                <i class="fa ui-icon-people"></i>
+              </td>
+              <td>
+                <a href="javascript:void(0)" (click)="showUsers($event,lst.id,lst.name,j)">
+                  {{lst.name}}
+                </a>
+              </td>
+              <td align="right" class="action-btn-group">
+                <span class="action-btn-group-sm p-r-lg">
+                  <button pButton type="button" icon="ui-icon-delete" title="Close"
+                          (click)="confirmRemoveLink($event,lst.id,user.EmpNo)"></button>
+                </span>
+              </td>
+            </tr>
+          </table>
+        </p-accordionTab>
+      </ng-container>
+    </ng-container>
+  </p-accordion>
+</div>
+<div class="ui-g-12 ui-md-4">
+  <div *ngIf="showingUsers">
+    <div *ngIf="selectedParentList!==0">
+      <h4 class="m-t-0">List Name</h4>
+      <input type="text" [(ngModel)]="listName" pInputText>
+    </div>
+    <div>
+      <h4 [ngClass]="{'m-t-0': !(selectedParentList!==0)}">Selected Users/Roles</h4>
+      <!--<div class="recipients">-->
+      <!--<ng-container *ngFor="let user of listUsers; let i=index;">-->
+      <!--<span class="ui-widget-header selectedUsers">{{user.fulName}}</span>-->
+      <!--<button pButton type="button" icon="ui-icon-close" title="Close" (click)="removeFromList(i)"></button>-->
+      <!--</ng-container>-->
+      <!--</div>-->
+      <p-autoComplete [(ngModel)]="listUsers" [multiple]="true" field="fulName" name="fulName">
+        <ng-template let-value pTemplate="selectedItem">
+              <span *ngIf="value.appRole==='ROLE'" [escape]="false" (mouseover)="getRoleMembers(value)" pTooltip="{{value.members}}"
+                    [tooltipStyleClass]="'tooltip'" tooltipPosition="bottom" class="p-r-xlg">{{value.fulName}}</span>
+          <span *ngIf="value.appRole==='USER'" class="p-r-xlg">{{value.fulName}}</span>
+        </ng-template>
+      </p-autoComplete>
+    </div>
+    <div class="ui-g-12 ui-md-12 p-0">
+      <button  [disabled]="!(listName && listUsers.length>0) || isSaveDisabled " pButton type="button" class="right-button m-t-md m-b-md medium-btn" (click)="save();searchUserForm.reset()"
+              label="Save"></button>
+      <button class="right-button m-t-md m-b-md medium-btn m-r-md" pButton type="button" (click)="clearItems()" label="Clear" ></button>
+    </div>
+    <h4>Search Users/Roles</h4>
+    <div class="searchBox">
+      <form #searchUserForm="ngForm" (submit)="searchUsers()">
+        <!--all search criteria-->
+        <div class="ui-g form-group">
+          <div class="ui-g-12 ui-md-10 p-b-sm p-l-0 p-t-0">
+            <p-selectButton [options]="searchTypes" [(ngModel)]="selectedType" (onChange)="onSearchTypeChanged($event)"
+                            [ngModelOptions]="{standalone: true}"></p-selectButton>
+          </div>
+          <div class="ui-g-12 ui-md-2">
+            <span *ngIf="selectedType==='ROLE'" class="hyperLink pull-left"
+                  (click)="showRoleTreeModel()">Role Tree</span>
+          </div>
+        </div>
+        <div class="ui-g form-group">
+          <div class="ui-g-12 ui-md-4">
+            <label class="text-bold">Select Criteria</label>
+          </div>
+          <div class="ui-g-12 ui-md-8">
+            <label class="text-bold">Search Text</label>
+          </div>
+        </div>
+        <div class="ui-g form-group">
+          <div class="ui-g-12 ui-md-4">
+            <label>Name:</label>
+          </div>
+          <div class="ui-g-12 ui-md-8">
+            <span class="md-inputfield">
+              <input type="text" pInputText name="userName" [(ngModel)]="searchQueary.userName">
+            </span>
+          </div>
+        </div>
+        <div class="ui-g form-group" [ngClass]="{'hidden-I':selectedType==='ROLE'}">
+          <div class="ui-g-12 ui-md-4">
+            <label>Email:</label>
+          </div>
+          <div class="ui-g-12 ui-md-8">
+            <span class="md-inputfield">
+              <input type="text" pInputText name="mail" [(ngModel)]="searchQueary.mail">
+            </span>
+          </div>
+        </div>
+        <div class="ui-g form-group" [ngClass]="{'hidden-I':selectedType==='ROLE'}">
+          <div class="ui-g-12 ui-md-4">
+            <label>Designation:</label>
+          </div>
+          <div class="ui-g-12 ui-md-8">
+            <span class="md-inputfield">
+              <input type="text" pInputText name="title" [(ngModel)]="searchQueary.title">
+            </span>
+          </div>
+        </div>
+        <div class="ui-g form-group" [ngClass]="{'hidden-I':selectedType==='ROLE'}">
+          <div class="ui-g-12 ui-md-4">
+            <label>Phone:</label>
+          </div>
+          <div class="ui-g-12 ui-md-8">
+            <span class="md-inputfield">
+              <div class="ui-fluid">
+                <p-spinner [(ngModel)]="searchQueary.phone" name="phone" [formatInput]="false" [min]="0" class="no-spinners"></p-spinner>
+              </div>
+            </span>
+          </div>
+        </div>
+        <div class="ui-g form-group">
+          <div class="ui-g-12 ui-md-4">
+            <label>Org Code:</label>
+          </div>
+          <div class="ui-g-12 ui-md-8">
+            <span class="md-inputfield">
+              <input type="text" pInputText name="orgCode" [(ngModel)]="searchQueary.orgCode">
+            </span>
+          </div>
+        </div>
+        <div class="ui-g form-group" [ngClass]="{'hidden-I':selectedType==='ROLE'}">
+          <div class="ui-g-12 ui-md-4">
+            <label>KOC No:</label>
+          </div>
+          <div class="ui-g-12 ui-md-8">
+            <span class="md-inputfield">
+              <div class="ui-fluid">
+                <p-spinner [(ngModel)]="searchQueary.empNo" name="empNo" [formatInput]="false" [min]="0" class="no-spinners"></p-spinner>
+              </div>
+            </span>
+          </div>
+        </div>
+        <div class="ui-g form-group">
+          <div class="ui-g-12 ui-md-12 p-l-0">
+            <button pButton type="submit" label="Search" class="pull-right"></button>
+            <button pButton type="button" (click)="searchUserForm.reset();" label="Clear" class="pull-right m-r-md"></button>
+          </div>
+        </div>
+        <div style="clear:both"></div>
+      </form>
+    </div>
+  </div>
+</div>
+<div *ngIf="searchStarted" class="ui-g-12 ui-md-4 max-h-400">
+  <app-user-list [items]="SelectedUserList" [field]="'name'" (addToList)="selectUser($event)"
+                 (existsInList)="userExist($event)" [showAddBtn]="true" [showToBtn]="false"
+                 [showCcBtn]="false" (getRoleMembers)="getRoleMembers($event)"
+                 [showTooltip]="selectedType==='ROLE'"></app-user-list>
+</div>
+<p-confirmDialog appendTo="body" key="confirmKey" header="Delete Confirmation"
+                 icon="fa fa-help-outline"></p-confirmDialog>
+
+<p-dialog appendTo="body" modal="modal" showEffect="fade" [(visible)]="showRoleList" width="600" [minHeight]="400"
+          (onHide)="closeRoleList()">
+  <p-header>
+    Role List
+  </p-header>
+  <div class="fix-h-300">
+    <div class="ui-g-12 ui-md-12 roleSearch-box">
+      <div class="ui-g-12 ui-md-8">
+        <div class="ui-inputgroup">
+            <span class="md-inputfield ">
+               <input type="text" pInputText (input)="searchRole()"
+                      placeholder="Search Role" [(ngModel)]="roleData.roles.model.query"/>
+              <i class="topbar-icon material-icons">search</i>
+            </span>
+        </div>
+      </div>
+    </div>
+    <div class="ui-g-12 ui-md-12">
+      <app-role-tree [data]="roleData" (addChildren)="selectUser($event.data)" (removeItem)="removeMember($event)"
+                     [showAddToToBtn]="false" [showAddToCCBtn]="false" [showAddChildBtn]="true"
+                     [showRemoveItemBtn]="false" [editRole]="false" (getRoleMembers)="getRoleMembers($event)">
+      </app-role-tree>
+    </div>
+    <div class="ui-g-12 ui-md-12">
+      <h4>Selected Users/Roles</h4>
+      <p-autoComplete [(ngModel)]="listUsers" [multiple]="true" field="fulName" name="fulName" (onUnselect)="onRemove($event)"></p-autoComplete>
+    </div>
+  </div>
+  <p-footer>
+    <button type="button" pButton (click)="showRoleList=false" label="Cancel"></button>
+    <button type="button" pButton (click)="save()" label="Save"></button>
+  </p-footer>
+</p-dialog>
+<p-dialog appendTo="body" modal="modal" showEffect="fade" [(visible)]="showRoleTree" width="600" [minHeight]="400"
+          (onHide)="closeRoleTree()">
+  <p-header>
+    Role Tree
+  </p-header>
+  <div class="fix-h-300">
+    <div class="ui-g-12 ui-md-12">
+      <app-role-tree [data]="roleData" (expandNode)="expandNode($event)" (addChildren)="selectUser($event.data)"
+                     (removeItem)="removeMember($event)" [showAddToToBtn]="false" [showAddToCCBtn]="false"
+                     [showAddChildBtn]="true"
+                     [showRemoveItemBtn]="false" [editRole]="false" (getRoleMembers)="getRoleMembers($event)">
+      </app-role-tree>
+    </div>
+    <div class="ui-g-12 ui-md-12">
+      <h4>Selected Users/Roles</h4>
+      <p-autoComplete [(ngModel)]="listUsers" [multiple]="true" field="fulName" name="fulName"></p-autoComplete>
+    </div>
+  </div>
+  <p-footer>
+    <button type="button" pButton (click)="showRoleTree=false" label="Cancel"></button>
+    <button type="button" pButton (click)="save()" label="Save"></button>
+  </p-footer>
+</p-dialog>

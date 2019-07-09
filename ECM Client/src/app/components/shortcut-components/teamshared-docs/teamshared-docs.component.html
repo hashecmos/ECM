@@ -1,0 +1,14 @@
+<button pButton type="button" label="Export" (click)="exportToExcel();"
+            class="pull-right m-b-sm" [disabled]="!teamDocs || teamDocs.length==0"></button>
+<div *ngIf="teamDocs">
+<data-table [showCount]="true" [totalCount]="teamDocs.length" (sendData)="getData($event,sidemenu)" [emptyMessage]="emptyMessage" [tableData]="teamDocs"
+            (refreshScreen)="refreshTable($event);" [showDownloadIcon]="false" [showAddCartIcon]="false"
+            [showInfoIcon]="true" [colHeaders]="colHeaders" [itemsPerPage]="itemsPerPage" [totalRecords]="teamDocs?teamDocs.length:0"
+            [rowExpandable]="false"></data-table></div>
+<div [ngClass]="{'hidden':!selectedItem || selectedItem.length===0}">
+  <aside-menu #sidemenu side="right" width="300px" isBackdrop="false" sideMode="push">
+    <app-rightpanel (sendUpdate)="getTeamUpdated($event);" (sendFolders)="getBrowseUpdated($event);" (sendMoveToFolder)="getMoveToFolder($event)" [currentScreen]="screen" (refreshScreen)="refresh($event);"
+                    (togglePanel)="toggle()"></app-rightpanel>
+  </aside-menu>
+</div>
+

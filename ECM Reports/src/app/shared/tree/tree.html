@@ -1,0 +1,16 @@
+<div style="height: 400px; width: 100%;">
+    <tree-root #tree [nodes]="nodes" [options]="options" [focused]="true">
+		<ng-template #treeNodeTemplate let-node let-templates="templates">
+            <div class="tree-node">
+                <div [ngClass]="{'disable node-content-wrapper-active node-content-wrapper-focused':!node.data.enabled}"
+                     [class.node-content-wrapper-active]="node.isActive"
+                     [class.node-content-wrapper-focused]="node.isFocused"
+                     (click)="nodeSelected(node.data)">
+                    <span title="{{node.data.subTitle}}">
+                        <i style="color: #00518d;" class="fa fa-users" aria-hidden="true"></i>&nbsp;&nbsp;&nbsp;{{ node.data.name }}
+                    </span>
+                </div>
+            </div>
+		</ng-template>
+	</tree-root>
+</div>

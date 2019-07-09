@@ -1,0 +1,12 @@
+.div  .ui-menu .ui-menu-dynamic .ui-widget .ui-widget-content .ui-corner-all .ui-helper-clearfix {
+   display: block;
+   visibility: visible;
+   top: -102px;
+   right: 0 !important;
+   z-index: 1003;
+   opacity: 1;
+   /* padding-right: 20px; */
+   min-width: 273px !important;
+ }
+
+
