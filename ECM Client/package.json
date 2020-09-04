@@ -39,7 +39,7 @@
     "ng2-aside": "^0.2.1",
     "ngx-charts": "^3.0.2",
     "ngx-file-viewer": "0.0.6",
-    "node-sass": "^4.7.2",
+    "node-sass": "^4.13.1",
     "primeng": "5.0.2",
     "quill": "1.1.8",
     "rxjs": "5.5.2",
